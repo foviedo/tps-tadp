@@ -7,7 +7,7 @@ class Prueba
     :tadp
   end
 
-  def hola
-    puts "chau"
+  def decir_hola
+    puts 'Hola'
   end
 end
