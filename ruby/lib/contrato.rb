@@ -10,20 +10,26 @@ module Contrato
 
   # Aca adentro self = la clase que incluye Contrato (self == Prueba)
   module ClassMethods
+    @before = nil
+    @after = nil
+    class << self
+      attr_accessor :before, :after
+    end
+
     # method_added se va a ejecutar cada vez que se define un metodo en la clase
     def method_added(method_name)
       # https://stackoverflow.com/questions/53487250/stack-level-too-deep-with-method-added-ruby
       return if @_adding_a_method
-      return if @before.nil?
-      return if @after.nil?
 
       metodo_viejo = instance_method(method_name)
 
       @_adding_a_method = true
       define_method(method_name) do
-        @before.call if @before
+        _before = self.class.before
+        _after = self.class.after
+        _before.call if _before
         resultado = metodo_viejo.bind(self).call
-        @after.call if @after
+        _after.call if _after
         resultado
       end
       @_adding_a_method = false
