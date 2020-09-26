@@ -3,10 +3,10 @@ module Contrato
   # https://stackoverflow.com/questions/4699355/ruby-is-it-possible-to-define-a-class-method-in-a-module
   # https://stackoverflow.com/questions/46112695/undefined-self-module-method-called-in-method-added
   def self.included(base)
-    attr_accessor :before, :after
     base.extend(ClassMethods)
-    base.extend(Contrato)
+    # base.extend(Contrato)
   end
+
 
   # Aca adentro self = la clase que incluye Contrato (self == Prueba)
   module ClassMethods
@@ -14,23 +14,43 @@ module Contrato
     def method_added(method_name)
       # https://stackoverflow.com/questions/53487250/stack-level-too-deep-with-method-added-ruby
       return if @_adding_a_method
+      return if @before.nil?
+      return if @after.nil?
 
       metodo_viejo = instance_method(method_name)
 
       @_adding_a_method = true
       define_method(method_name) do
-        before.call if @before
+        @before.call if @before
         resultado = metodo_viejo.bind(self).call
-        after.call if @after
+        @after.call if @after
         resultado
       end
       @_adding_a_method = false
     end
-  end
 
+    def before_and_after_each_call(before, after)
+      @before = before
+      @after = after
+    end
 
-  def before_and_after_each_call(before, after)
-    @before = before
-    @after = after
+    # Agrega un nuevo invariant al vector
+    def invariant(&block)
+      @invariants ||= [] # Loco no te voy a mentir, no se por que sin esto no funciona
+      @invariants << block
+    end
+
+    # Con esto inicializo el vector de invariants
+    def invariants
+      @invariants ||= []
+    end
+
+    def before
+      @before
+    end
+
+    def after
+      @after
+    end
   end
 end
