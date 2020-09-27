@@ -17,25 +17,18 @@ describe Prueba do
         before_and_after_each_call(proc {puts 'Hago algo antes'}, proc {puts 'Hago algo despues'})
 
         def decir_chau
-          puts "Chau"
+          puts 'Chau'
         end
+        Prueba.new.decir_chau
+
+        puts ''
+        before_and_after_each_call(proc {puts 'Otro algo antes'}, proc {puts 'Otro algo despues'})
+        def decir_chau
+          puts 'Chau 2'
+        end
+        Prueba.new.decir_chau
       end
 
-      # Backup de codigo, ndea
-      #
-      # klass = Class.new do
-      #   include Contrato
-      #   @before = nil
-      #   @after = nil
-      #   attr_accessor :energia, :ganas_de_vivir
-      #
-      #   before_and_after_each_call(proc {puts 'Hago algo antes'}, proc {puts 'Hago algo despues'})
-      #   def decir_chau
-      #     puts "Chau"
-      #   end
-      # end
-
-      Prueba.new.decir_chau
       expect(2).to be 2
     end
 
@@ -49,4 +42,3 @@ describe Prueba do
     end
   end
 end
-

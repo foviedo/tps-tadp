@@ -24,18 +24,18 @@ module Contrato
       metodo_viejo = instance_method(method_name)
 
       @_adding_a_method = true
+      proc_before = before
+      proc_after = after
       define_method(method_name) do
-        _before = self.class.before
-        _after = self.class.after
-        _before.call if _before
+        proc_before.call
         resultado = metodo_viejo.bind(self).call
-        _after.call if _after
+        proc_after.call
         resultado
       end
       @_adding_a_method = false
     end
 
-    def before_and_after_each_call(before, after)
+    def before_and_after_each_call(before = proc {}, after = proc {})
       @before = before
       @after = after
     end
@@ -52,11 +52,11 @@ module Contrato
     end
 
     def before
-      @before
+      @before ||= proc {}
     end
 
     def after
-      @after
+      @after ||= proc {}
     end
   end
 end
