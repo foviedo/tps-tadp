@@ -29,11 +29,12 @@ module Contrato
       # puts "yo soy #{method_name} y Este es el invariant #{proc_invariant}"
       proc_before = before
       proc_after = after
-      define_method(method_name) do
+      define_method(method_name) do |*argumentos|
         raise "Error con un invariant en #{self}:#{method_name}" unless instance_eval(&proc_invariant)
+        argumentos = nil if argumentos.empty?
 
         proc_before.call
-        resultado = metodo_viejo.bind(self).call
+        resultado = metodo_viejo.bind(self).call(*argumentos)
         proc_after.call
         resultado
       end

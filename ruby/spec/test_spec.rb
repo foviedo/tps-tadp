@@ -34,14 +34,15 @@ describe Prueba do
       sleep 1
       class Prueba
         invariant {diez == 10}
-        def metodo_invariants
-          puts "soy un metodo"
+        def metodo_invariants(s)
+          s
         end
-        puts invariants
       end
 
-      Prueba.new.metodo_invariants
-      expect(2).to be 2
+      Prueba.new.metodo_invariants('bien')
+      expect(Prueba.new.metodo_invariants('bien')).to eq 'bien'
+      # expect(Prueba.new(9)).to raise_error(RuntimeError)
+      Prueba.new(10)
     end
   end
 end

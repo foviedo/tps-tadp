@@ -1,13 +1,14 @@
 require_relative 'contrato'
 
 class Prueba
-  include Contrato
   attr_accessor :diez, :hola, :verdadero
+  include Contrato
 
-  def initialize
+  def initialize(numero = 0)
     @diez = 10
     @hola = 'hola'
     @verdadero = true
+    @numero = numero
   end
 
   def materia
