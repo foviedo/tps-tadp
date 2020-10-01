@@ -10,10 +10,8 @@ describe Prueba do
   end
 
   describe 'Prueba' do
-    it 'before_and_after_each_call' do
+    xit 'before_and_after_each_call' do
       class Prueba
-        include Contrato
-
         before_and_after_each_call(proc {puts 'Hago algo antes'}, proc {puts 'Hago algo despues'})
 
         def decir_chau
@@ -23,7 +21,7 @@ describe Prueba do
 
         puts ''
         before_and_after_each_call(proc {puts 'Otro algo antes'}, proc {puts 'Otro algo despues'})
-        def decir_chau
+        def decir_chau2
           puts 'Chau 2'
         end
         Prueba.new.decir_chau
@@ -32,12 +30,17 @@ describe Prueba do
       expect(2).to be 2
     end
 
-    xit 'Invariants' do
+    it 'Invariants' do
       sleep 1
       class Prueba
         invariant {diez == 10}
+        def metodo_invariants
+          puts "soy un metodo"
+        end
+        puts invariants
       end
 
+      Prueba.new.metodo_invariants
       expect(2).to be 2
     end
   end

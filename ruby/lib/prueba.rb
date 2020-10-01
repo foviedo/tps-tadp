@@ -1,6 +1,9 @@
 require_relative 'contrato'
 
 class Prueba
+  include Contrato
+  attr_accessor :diez, :hola, :verdadero
+
   def initialize
     @diez = 10
     @hola = 'hola'

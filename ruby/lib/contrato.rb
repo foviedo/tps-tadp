@@ -24,9 +24,14 @@ module Contrato
       metodo_viejo = instance_method(method_name)
 
       @_adding_a_method = true
+      # TODO: hacer que esto funcione con una lista
+      proc_invariant = invariants.first
+      # puts "yo soy #{method_name} y Este es el invariant #{proc_invariant}"
       proc_before = before
       proc_after = after
       define_method(method_name) do
+        raise "Error con un invariant en #{self}:#{method_name}" unless instance_eval(&proc_invariant)
+
         proc_before.call
         resultado = metodo_viejo.bind(self).call
         proc_after.call
@@ -48,7 +53,7 @@ module Contrato
 
     # Con esto inicializo el vector de invariants
     def invariants
-      @invariants ||= []
+      @invariants ||= [proc { true }]
     end
 
     def before
