@@ -31,24 +31,31 @@ describe Prueba do
     end
 
     it 'Invariants' do
-      sleep 1
-      class Ricota
-        attr_accessor :numero
+      class Atleta
+        attr_accessor :nombre, :edad, :velocidad
         include Contrato
 
-        def initialize(numero)
-          @numero = numero
+        def initialize(nombre, velocidad, edad)
+          @nombre = nombre
+          @velocidad = velocidad
+          @edad = edad
         end
 
-        invariant {numero == 10}
-        def metodo_invariants(s)
-          s
+        #Para ser un atleta y poder competir necesitamos que sean mayores de edad
+        invariant {edad >= 18}
+        #Para ser un atleta capo tiene que correr a mas de 25km/h pero no puede ir a mas de 100km/h sino asumimos que esta consumiendo sustancias ilegales o que la esta cheeteando
+        invariant {velocidad > 25 && velocidad < 100}
+
+        def metodo(edad)
+          @edad = edad
         end
       end
 
-      Ricota.new(10).metodo_invariants('bien')
-      expect(Ricota.new(10).metodo_invariants('bien')).to eq 'bien'
-      expect{Ricota.new(9)}.to raise_error(RuntimeError)
+      expect(Atleta.new("Fran", 50, 20).metodo(21)).to eq 21
+      expect{Atleta.new("Maxi", 120, 20)}.to raise_error(RuntimeError)
+      expect{Atleta.new("Facu", 50, 17)}.to raise_error(RuntimeError)
+      expect{Atleta.new("Guido", 15, 20)}.to raise_error(RuntimeError)
+
     end
 
     it 'pre y post' do
