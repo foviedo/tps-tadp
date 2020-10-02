@@ -24,7 +24,7 @@ module Contrato
       return if @_adding_a_method
 
       # Si estoy en un initialize no hago nada porque se re bardio
-      return if method_name == :initialize
+      # return if method_name == :initialize
 
       metodo_viejo = instance_method(method_name)
 
@@ -34,6 +34,18 @@ module Contrato
       proc_after = after
 
       define_method(method_name) do |*argumentos|
+        # Si estoy en un initialize CHUPO PORONGAS
+        if method_name == :initialize
+          resultado = metodo_viejo.bind(self).call(*argumentos)
+          # Checkeo cada invariant
+          proc_invariants.each do |invariant|
+            puts invariant.to_source(strip_enclosure: true)
+            raise "Error con un invariant en #{self}:#{method_name}}" unless instance_eval(&invariant)
+          end
+
+          resultado
+        end
+
         # Checkeo cada invariant
         proc_invariants.each do |invariant|
           puts invariant.to_source(strip_enclosure: true)
@@ -50,10 +62,9 @@ module Contrato
         resultado
       end
 
-      # Reseteo los before, after e invariants
+      # Reseteo los before y after
       proc_true = proc { true }
       before_and_after_each_call(proc_true, proc_true)
-      @invariants = nil
       @_adding_a_method = false
     end
 

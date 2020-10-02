@@ -32,17 +32,23 @@ describe Prueba do
 
     it 'Invariants' do
       sleep 1
-      class Prueba
-        invariant {diez == 10}
+      class Ricota
+        attr_accessor :numero
+        include Contrato
+
+        def initialize(numero)
+          @numero = numero
+        end
+
+        invariant {numero == 10}
         def metodo_invariants(s)
           s
         end
       end
 
-      Prueba.new.metodo_invariants('bien')
-      expect(Prueba.new.metodo_invariants('bien')).to eq 'bien'
-      # expect(Prueba.new(9)).to raise_error(RuntimeError)
-      Prueba.new(10)
+      Ricota.new(10).metodo_invariants('bien')
+      expect(Ricota.new(10).metodo_invariants('bien')).to eq 'bien'
+      expect{Ricota.new(9)}.to raise_error(RuntimeError)
     end
 
     it 'pre y post' do
