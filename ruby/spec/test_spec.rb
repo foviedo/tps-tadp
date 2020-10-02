@@ -44,5 +44,41 @@ describe Prueba do
       # expect(Prueba.new(9)).to raise_error(RuntimeError)
       Prueba.new(10)
     end
+
+    it 'pre y post' do
+      class Prueba
+        pre {diez == 10}
+        def banana
+          @diez += 1
+          p "banana"
+        end
+
+        def tetas
+          p "tetas"
+        end
+
+        post { 1 == 1 }
+        def poronga
+          puts "hola"
+        end
+      end
+
+      puts "\n\nEstoy en el ultimo test :)"
+      puts "\n==BANANA=="
+      objeto = Prueba.new
+      objeto.banana
+      puts "LLEGUE HASTA ACA BIEN"
+      expect{objeto.banana}.to raise_error(RuntimeError)
+
+      puts "\n==TETAS=="
+      Prueba.new.tetas
+
+      puts "\n==PORONGA=="
+      Prueba.new.poronga
+
+      puts "\n==Decir Hola=="
+      Prueba.new.decir_hola
+    end
+
   end
 end

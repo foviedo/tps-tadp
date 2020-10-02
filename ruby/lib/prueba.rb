@@ -15,6 +15,7 @@ class Prueba
     :tadp
   end
 
+  pre { materia == :tadp }
   def decir_hola
     puts 'Hola'
   end

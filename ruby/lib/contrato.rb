@@ -23,30 +23,37 @@ module Contrato
       # https://stackoverflow.com/questions/53487250/stack-level-too-deep-with-method-added-ruby
       return if @_adding_a_method
 
+      # Si estoy en un initialize no hago nada porque se re bardio
+      return if method_name == :initialize
+
       metodo_viejo = instance_method(method_name)
 
       @_adding_a_method = true
-      # TODO: hacer que esto funcione con una lista
       proc_invariants = invariants
-      # puts "yo soy #{method_name} y Este es el invariant #{proc_invariant}"
       proc_before = before
       proc_after = after
 
       define_method(method_name) do |*argumentos|
-        # Si estoy en un initialize no hago nada porque se re bardio
-        return metodo_viejo.bind(self).call(*argumentos) if method_name == :initialize
-
         # Checkeo cada invariant
         proc_invariants.each do |invariant|
-          # puts invariant.to_source(:strip_enclosure => true)
+          puts invariant.to_source(strip_enclosure: true)
           raise "Error con un invariant en #{self}:#{method_name}}" unless instance_eval(&invariant)
         end
 
-        proc_before.call
+        puts "Soy el before: #{proc_before.to_source(strip_enclosure: true)}"
+        raise "Error con un before en #{self}:#{method_name}}" unless instance_eval(&proc_before)
+
         resultado = metodo_viejo.bind(self).call(*argumentos)
-        proc_after.call
+
+        puts "Soy el after: #{proc_after.to_source(strip_enclosure: true)}"
+        raise "Error con un after en #{self}:#{method_name}}" unless instance_eval(&proc_after)
         resultado
       end
+
+      # Reseteo los before, after e invariants
+      proc_true = proc { true }
+      before_and_after_each_call(proc_true, proc_true)
+      @invariants = nil
       @_adding_a_method = false
     end
 
@@ -61,17 +68,25 @@ module Contrato
       @invariants << block
     end
 
+    def pre(&block)
+      @before = block
+    end
+
+    def post(&block)
+      @after = block
+    end
+
     # Con esto inicializo el vector de invariants
     def invariants
       @invariants ||= [proc { true }]
     end
 
     def before
-      @before ||= proc {}
+      @before ||= proc { true }
     end
 
     def after
-      @after ||= proc {}
+      @after ||= proc { true }
     end
   end
 end
