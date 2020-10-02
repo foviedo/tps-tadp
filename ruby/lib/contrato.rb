@@ -1,3 +1,5 @@
+require 'sourcify'
+
 module Contrato
   # self.included permite a los metodos ejecutar en el contexto del que incluye
   # https://stackoverflow.com/questions/4699355/ruby-is-it-possible-to-define-a-class-method-in-a-module
@@ -25,13 +27,20 @@ module Contrato
 
       @_adding_a_method = true
       # TODO: hacer que esto funcione con una lista
-      proc_invariant = invariants.first
+      proc_invariants = invariants
       # puts "yo soy #{method_name} y Este es el invariant #{proc_invariant}"
       proc_before = before
       proc_after = after
+
       define_method(method_name) do |*argumentos|
-        raise "Error con un invariant en #{self}:#{method_name}" unless instance_eval(&proc_invariant)
-        argumentos = nil if argumentos.empty?
+        # Si estoy en un initialize no hago nada porque se re bardio
+        return metodo_viejo.bind(self).call(*argumentos) if method_name == :initialize
+
+        # Checkeo cada invariant
+        proc_invariants.each do |invariant|
+          # puts invariant.to_source(:strip_enclosure => true)
+          raise "Error con un invariant en #{self}:#{method_name}}" unless instance_eval(&invariant)
+        end
 
         proc_before.call
         resultado = metodo_viejo.bind(self).call(*argumentos)
