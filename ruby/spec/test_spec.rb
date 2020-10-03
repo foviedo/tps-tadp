@@ -51,10 +51,10 @@ describe Prueba do
         end
       end
 
-      expect(Atleta.new("Fran", 50, 20).metodo(21)).to eq 21
-      expect{Atleta.new("Maxi", 120, 20)}.to raise_error(RuntimeError)
-      expect{Atleta.new("Facu", 50, 17)}.to raise_error(RuntimeError)
-      expect{Atleta.new("Guido", 15, 20)}.to raise_error(RuntimeError)
+      expect(Atleta.new('Fran', 50, 20).metodo(21)).to eq 21
+      expect{Atleta.new('Maxi', 120, 20)}.to raise_error(RuntimeError)
+      expect{Atleta.new('Facu', 50, 17)}.to raise_error(RuntimeError)
+      expect{Atleta.new('Guido', 15, 20)}.to raise_error(RuntimeError)
 
     end
 
@@ -63,16 +63,16 @@ describe Prueba do
         pre {diez == 10}
         def banana
           @diez += 1
-          p "banana"
+          p 'banana'
         end
 
         def tetas
-          p "tetas"
+          p 'tetas'
         end
 
         post { 1 == 1 }
         def poronga
-          puts "hola"
+          puts 'hola'
         end
       end
 
@@ -80,7 +80,7 @@ describe Prueba do
       puts "\n==BANANA=="
       objeto = Prueba.new
       objeto.banana
-      puts "LLEGUE HASTA ACA BIEN"
+      puts 'LLEGUE HASTA ACA BIEN'
       expect{objeto.banana}.to raise_error(RuntimeError)
 
       puts "\n==TETAS=="
@@ -93,5 +93,64 @@ describe Prueba do
       Prueba.new.decir_hola
     end
 
+  end
+
+  describe 'Test_Guido' do
+    class UnaClase
+      attr_accessor :energia, :potencia
+      include Contrato
+
+      def initialize
+        self.energia = 420
+        self.potencia = 666
+      end
+
+      invariant{energia <= 420}
+
+      def fumarseUnFaso
+        self.energia -= 1
+      end
+
+      pre {param > 0}
+      def unMeto(param)
+        param
+      end
+
+      def verParam(param)
+        param
+      end
+
+      def tomarFalopa(gramos)
+        self.energia += gramos
+      end
+
+      pre {energia < 20}
+      def metodoDePruebaPrioridad(energia)
+
+      end
+
+      pre {energia > 10}
+      def correr(cuadras)
+        self.potencia - 4
+      end
+    end
+
+    it 'si se manda una instancia a ver param con un parametro mayor a uno todo sale bien' do
+      expect(UnaClase.new.verParam(10)).to eq 10
+    end
+    it 'si se manda una instancia a tomar falopa con una cantidad de gramos mayor a 420, el invariant deberia romper' do
+      expect{UnaClase.new.tomarFalopa(500)}.to raise_error(RuntimeError)
+    end
+    it 'si se manda una instancia a tomar falopa con una cantidad de gramos de 0, todo sale bien porque sigue cumpliendose el invariant' do
+      expect(UnaClase.new.tomarFalopa(0)).to eq(420)
+    end
+    it 'se priorizan los parametros a la hora de validar contratos en el caso de que tanto parametros como atributos tengan el mismo nombre' do
+      expect{luken = UnaClase.new
+      luken.fumarseUnFaso
+      luken.metodoDePruebaPrioridad(50)}.to raise_error(RuntimeError)
+    end
+    it 'se cumplen tanto pre como post' do
+      expect(UnaClase.new.correr(5)).to eq 662
+    end
   end
 end

@@ -46,16 +46,16 @@ module Contrato
           resultado
         end
 
+        puts "Soy el before: #{proc_before.to_source(strip_enclosure: true)}"
+        raise "Error con un before en #{self}:#{method_name}}" unless instance_eval(&proc_before)
+
+        resultado = metodo_viejo.bind(self).call(*argumentos)
+
         # Checkeo cada invariant
         proc_invariants.each do |invariant|
           puts invariant.to_source(strip_enclosure: true)
           raise "Error con un invariant en #{self}:#{method_name}}" unless instance_eval(&invariant)
         end
-
-        puts "Soy el before: #{proc_before.to_source(strip_enclosure: true)}"
-        raise "Error con un before en #{self}:#{method_name}}" unless instance_eval(&proc_before)
-
-        resultado = metodo_viejo.bind(self).call(*argumentos)
 
         puts "Soy el after: #{proc_after.to_source(strip_enclosure: true)}"
         raise "Error con un after en #{self}:#{method_name}}" unless instance_eval(&proc_after)
