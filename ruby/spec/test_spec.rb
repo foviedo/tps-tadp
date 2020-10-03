@@ -66,13 +66,13 @@ describe Prueba do
           p 'banana'
         end
 
-        def tetas
-          p 'tetas'
+        def manzana
+          p 'manzana'
         end
 
         post { 1 == 1 }
-        def poronga
-          puts 'hola'
+        def naranja
+          puts 'naranja'
         end
       end
 
@@ -83,11 +83,11 @@ describe Prueba do
       puts 'LLEGUE HASTA ACA BIEN'
       expect{objeto.banana}.to raise_error(RuntimeError)
 
-      puts "\n==TETAS=="
-      Prueba.new.tetas
+      puts "\n==MANZANA=="
+      Prueba.new.manzana
 
-      puts "\n==PORONGA=="
-      Prueba.new.poronga
+      puts "\n==NARANJA=="
+      Prueba.new.naranja
 
       puts "\n==Decir Hola=="
       Prueba.new.decir_hola
@@ -95,7 +95,7 @@ describe Prueba do
 
   end
 
-  describe 'Test_Guido' do
+  describe 'the last dance' do
     class UnaClase
       attr_accessor :energia, :potencia
       include Contrato
@@ -107,7 +107,7 @@ describe Prueba do
 
       invariant{energia <= 420}
 
-      def fumarseUnFaso
+      def fumarseUnCigarro
         self.energia -= 1
       end
 
@@ -120,7 +120,7 @@ describe Prueba do
         param
       end
 
-      def tomarFalopa(gramos)
+      def tomarCerveza(gramos)
         self.energia += gramos
       end
 
@@ -139,14 +139,14 @@ describe Prueba do
       expect(UnaClase.new.verParam(10)).to eq 10
     end
     it 'si se manda una instancia a tomar falopa con una cantidad de gramos mayor a 420, el invariant deberia romper' do
-      expect{UnaClase.new.tomarFalopa(500)}.to raise_error(RuntimeError)
+      expect{UnaClase.new.tomarCerveza(500)}.to raise_error(RuntimeError)
     end
     it 'si se manda una instancia a tomar falopa con una cantidad de gramos de 0, todo sale bien porque sigue cumpliendose el invariant' do
-      expect(UnaClase.new.tomarFalopa(0)).to eq(420)
+      expect(UnaClase.new.tomarCerveza(0)).to eq(420)
     end
     it 'se priorizan los parametros a la hora de validar contratos en el caso de que tanto parametros como atributos tengan el mismo nombre' do
       expect{luken = UnaClase.new
-      luken.fumarseUnFaso
+      luken.fumarseUnCigarro
       luken.metodoDePruebaPrioridad(50)}.to raise_error(RuntimeError)
     end
     it 'se cumplen tanto pre como post' do
