@@ -3,7 +3,7 @@ require 'rspec'
 require_relative '../lib/contrato'
 
 
-describe 'pruebaFinal' do
+describe 'theLastDance' do
 
     unaClase = Class.new do
       extend Contract
