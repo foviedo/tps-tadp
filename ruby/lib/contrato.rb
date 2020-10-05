@@ -12,19 +12,10 @@ module Contrato
 
   # Aca adentro self = la clase que incluye Contrato (self == Prueba)
   module ClassMethods
-    @before = nil
-    @after = nil
-    class << self
-      attr_accessor :before, :after
-    end
-
     # method_added se va a ejecutar cada vez que se define un metodo en la clase
     def method_added(method_name)
       # https://stackoverflow.com/questions/53487250/stack-level-too-deep-with-method-added-ruby
       return if @_adding_a_method
-
-      # Si estoy en un initialize no hago nada porque se re bardio
-      # return if method_name == :initialize
 
       metodo_viejo = instance_method(method_name)
 
@@ -34,18 +25,6 @@ module Contrato
       proc_after = after
 
       define_method(method_name) do |*argumentos|
-        # Si estoy en un initialize CHUPO PORONGAS
-        if method_name == :initialize
-          resultado = metodo_viejo.bind(self).call(*argumentos)
-          # Checkeo cada invariant
-          proc_invariants.each do |invariant|
-            puts invariant.to_source(strip_enclosure: true)
-            raise "Error con un invariant en #{self}:#{method_name}}" unless instance_eval(&invariant)
-          end
-
-          resultado
-        end
-
         puts "Soy el before: #{proc_before.to_source(strip_enclosure: true)}"
         raise "Error con un before en #{self}:#{method_name}}" unless instance_eval(&proc_before)
 
@@ -59,6 +38,7 @@ module Contrato
 
         puts "Soy el after: #{proc_after.to_source(strip_enclosure: true)}"
         raise "Error con un after en #{self}:#{method_name}}" unless instance_eval(&proc_after)
+
         resultado
       end
 

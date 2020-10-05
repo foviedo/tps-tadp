@@ -11,20 +11,20 @@ describe Prueba do
 
   describe 'Prueba' do
     xit 'before_and_after_each_call' do
-      class Prueba
+      nueva_clase = Class.new do
         before_and_after_each_call(proc {puts 'Hago algo antes'}, proc {puts 'Hago algo despues'})
 
         def decir_chau
           puts 'Chau'
         end
-        Prueba.new.decir_chau
+        nueva_clase.new.decir_chau
 
         puts ''
         before_and_after_each_call(proc {puts 'Otro algo antes'}, proc {puts 'Otro algo despues'})
         def decir_chau2
           puts 'Chau 2'
         end
-        Prueba.new.decir_chau
+        nueva_clase.new.decir_chau
       end
 
       expect(2).to be 2
