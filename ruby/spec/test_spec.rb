@@ -116,6 +116,7 @@ describe Prueba do
         param
       end
 
+      post{|resultado| resultado>0}
       def verParam(param)
         param
       end
@@ -151,6 +152,9 @@ describe Prueba do
     end
     it 'se cumplen tanto pre como post' do
       expect(UnaClase.new.correr(5)).to eq 662
+    end
+    xit 'bro' do
+      expect(UnaClase.new.unMeto(5)).to eq 5
     end
   end
 end

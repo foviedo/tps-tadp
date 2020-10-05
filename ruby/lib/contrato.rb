@@ -26,7 +26,7 @@ module Contrato
 
       define_method(method_name) do |*argumentos|
         puts "Soy el before: #{proc_before.to_source(strip_enclosure: true)}"
-        raise "Error con un before en #{self}:#{method_name}}" unless instance_eval(&proc_before)
+        raise "Error con un before en #{self}:#{method_name}}" unless instance_exec(&proc_before)
 
         resultado = metodo_viejo.bind(self).call(*argumentos)
 
@@ -37,7 +37,7 @@ module Contrato
         end
 
         puts "Soy el after: #{proc_after.to_source(strip_enclosure: true)}"
-        raise "Error con un after en #{self}:#{method_name}}" unless instance_eval(&proc_after)
+        raise "Error con un after en #{self}:#{method_name}}" unless instance_exec(resultado,&proc_after)
 
         resultado
       end
