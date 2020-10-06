@@ -18,6 +18,7 @@ module Contrato
       return if @_adding_a_method
 
       metodo_viejo = instance_method(method_name)
+      nombre_argumentos = metodo_viejo.parameters.map { |arg| arg[1].to_s }
 
       @_adding_a_method = true
       proc_invariants = invariants
@@ -25,6 +26,11 @@ module Contrato
       proc_after = after
 
       define_method(method_name) do |*argumentos|
+        nombre_argumentos.each_with_index do |item, index|
+          define_singleton_method(item) do
+            argumentos[index]
+          end
+        end
         puts "Soy el before: #{proc_before.to_source(strip_enclosure: true)}"
         raise "Error con un before en #{self}:#{method_name}}" unless instance_exec(&proc_before)
 

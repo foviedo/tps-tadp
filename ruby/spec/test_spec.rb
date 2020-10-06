@@ -153,8 +153,10 @@ describe Prueba do
     it 'se cumplen tanto pre como post' do
       expect(UnaClase.new.correr(5)).to eq 662
     end
-    xit 'bro' do
-      expect(UnaClase.new.unMeto(5)).to eq 5
+    it 'bro' do
+      foo = UnaClase.new
+      expect(foo.unMeto(5)).to eq 5
+      expect(foo.unMeto(6)).to eq 6
     end
   end
 end
