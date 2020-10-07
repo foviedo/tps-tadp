@@ -25,12 +25,13 @@ module Contrato
       proc_after = after
 
       define_method(method_name) do |*argumentos|
+        miObjetoCopia = self.clone
         nombre_argumentos.each_with_index do |item, index|
-          define_singleton_method(item) do
+          miObjetoCopia.define_singleton_method(item) do
             argumentos[index]
           end
         end
-        raise "Error con un before en #{self}:#{method_name}}" unless instance_exec(&proc_before)
+        raise "Error con un before en #{self}:#{method_name}}" unless miObjetoCopia.instance_exec(&proc_before)
 
         resultado = metodo_viejo.bind(self).call(*argumentos)
 
@@ -39,7 +40,7 @@ module Contrato
           raise "Error con un invariant en #{self}:#{method_name}}" unless instance_eval(&invariant)
         end
 
-        raise "Error con un after en #{self}:#{method_name}}" unless instance_exec(resultado,&proc_after)
+        raise "Error con un after en #{self}:#{method_name}}" unless miObjetoCopia.instance_exec(resultado,&proc_after)
 
         resultado
       end

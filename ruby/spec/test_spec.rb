@@ -46,7 +46,7 @@ describe 'the last dance' do
 
     post{energia>0}
     def fumarseUnCigarro
-      self.energia -= 1
+      self.energia -= 10
     end
 
     pre {param > 0}
@@ -73,6 +73,16 @@ describe 'the last dance' do
     def correr(cuadras)
       self.potencia - 4
     end
+
+    def metodoBanana
+      return "banana"
+    end
+
+    pre{metodoBanana == "manzana"}
+    def unMetodoQuePidioJuan(metodoBanana)
+      return metodoBanana
+    end
+
   end
 
   it 'si se manda una instancia a ver param con un parametro mayor a uno todo sale bien' do
@@ -101,6 +111,11 @@ describe 'the last dance' do
     expect{luken = UnaClase.new
            luken.fumarseUnCigarro
            luken.metodoDePruebaPrioridad(450)}.to raise_error(RuntimeError)
+  end
+  it 'no debería pisar los métodos que se llaman igual que los parametros' do
+    clase = UnaClase.new
+    clase.unMetodoQuePidioJuan("manzana")
+    expect(clase.metodoBanana).to eq "banana"
   end
 
 
