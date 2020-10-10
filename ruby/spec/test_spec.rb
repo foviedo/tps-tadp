@@ -46,9 +46,9 @@ describe 'rompiendo las copias' do
         @valor += 1
       end
 
-      post {variableParametro > 0}
-      def checkeo_de_variable_parametro(variableParametro)
-        return variableParametro
+      post {variable_parametro > 0}
+      def checkeo_de_variable_parametro(variable_parametro)
+        return variable_parametro
       end
 
     end
@@ -73,78 +73,78 @@ describe 'the last dance' do
     invariant{energia <= 420}
 
     post{energia>0}
-    def fumarseUnCigarro
+    def fumarse_un_cigarro
       self.energia -= 10
     end
 
     pre {param > 0}
-    def unMeto(param)
+    def un_meto(param)
       param
     end
 
     post{|resultado| resultado>0}
-    def verParam(param)
+    def ver_param(param)
       param
     end
 
-    def tomarCerveza(gramos)
+    def tomar_cerveza(gramos)
       self.energia += gramos
     end
 
     pre {energia < 420}
-    def metodoDePruebaPrioridad(energia)
+    def metodo_de_prueba_prioridad(energia)
       energia
     end
 
     pre {energia > 10}
     post {|potenciaNueva| potenciaNueva < potencia}
-    def correr(cuadras)
+    def correr()
       self.potencia - 4
     end
 
-    def metodoBanana
+    def metodo_banana
       return "banana"
     end
 
-    pre{metodoBanana == "manzana"}
-    def unMetodoQuePidioJuan(metodoBanana)
-      return metodoBanana
+    pre{metodo_banana == "manzana"}
+    def un_metodo_que_pidio_juan(metodo_banana)
+      return metodo_banana
     end
 
   end
 
   it 'si se manda una instancia a ver param con un parametro mayor a uno todo sale bien' do
-    expect(UnaClase.new.verParam(10)).to eq 10
+    expect(UnaClase.new.ver_param(10)).to eq 10
   end
   it 'se cumplen tanto pre como post' do
-    expect(UnaClase.new.correr(5)).to eq 662
+    expect(UnaClase.new.correr).to eq 662
   end
   it 'si se manda una instancia a tomar cerveza con una cantidad de gramos mayor a 420, el invariant deberia romper' do
-    expect{UnaClase.new.tomarCerveza(500)}.to raise_error(RuntimeError)
+    expect{UnaClase.new.tomar_cerveza(500)}.to raise_error(RuntimeError)
   end
   it 'si se manda una instancia a tomar cerveza con una cantidad de gramos de 0, todo sale bien porque sigue cumpliendose el invariant' do
-    expect(UnaClase.new.tomarCerveza(0)).to eq(420)
+    expect(UnaClase.new.tomar_cerveza(0)).to eq(420)
   end
 
   it 'Si uso unMeto, el pre va a tener que usar los mismos parámetros que el método' do
     foo = UnaClase.new
-    expect(foo.unMeto(5)).to eq 5
-    expect(foo.unMeto(6)).to eq 6
+    expect(foo.un_meto(5)).to eq 5
+    expect(foo.un_meto(6)).to eq 6
   end
 
   it 'si un post no recibe parámetros, no debería romper de todos modos' do
-    UnaClase.new.fumarseUnCigarro
+    UnaClase.new.fumarse_un_cigarro
   end
   it 'se priorizan los parametros a la hora de validar contratos en el caso de que tanto parametros como atributos tengan el mismo nombre' do
     expect{
       luken = UnaClase.new
-      luken.fumarseUnCigarro
-      luken.metodoDePruebaPrioridad(450)}.to raise_error(RuntimeError)
+      luken.fumarse_un_cigarro
+      luken.metodo_de_prueba_prioridad(450)}.to raise_error(RuntimeError)
   end
   it 'no debería pisar los métodos que se llaman igual que los parametros' do
     clase = UnaClase.new
-    clase.unMetodoQuePidioJuan("manzana")
-    expect(clase.metodoBanana).to eq "banana"
+    clase.un_metodo_que_pidio_juan("manzana")
+    expect(clase.metodo_banana).to eq "banana"
   end
 
 end
