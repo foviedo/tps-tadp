@@ -34,8 +34,9 @@ module Contrato
 
         resultado = metodo_viejo.bind(self).call(*argumentos)
 
+        #prco_invariants.each ...
         # Checkeo cada invariant
-        proc_invariants.each do |invariant|
+        self.class.invariants.each do |invariant|
           raise "Error con un invariant en #{self}:#{method_name}}" unless instance_eval(&invariant)
         end
         mi_objeto_copia = self.clone
