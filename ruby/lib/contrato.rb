@@ -8,7 +8,6 @@ module Contrato
     base.extend(ClassMethods)
   end
 
-
   # Aca adentro self = la clase que incluye Contrato (self == Prueba)
   module ClassMethods
     # method_added se va a ejecutar cada vez que se define un metodo en la clase
@@ -25,13 +24,13 @@ module Contrato
       proc_after = after
 
       define_method(method_name) do |*argumentos|
-        miObjetoCopia = self.clone
+        mi_objeto_copia = self.clone
         nombre_argumentos.each_with_index do |item, index|
-          miObjetoCopia.define_singleton_method(item) do
+          mi_objeto_copia.define_singleton_method(item) do
             argumentos[index]
           end
         end
-        raise "Error con un before en #{self}:#{method_name}}" unless miObjetoCopia.instance_exec(&proc_before)
+        raise "Error con un pre en #{self}:#{method_name}}" unless mi_objeto_copia.instance_exec(&proc_before)
 
         resultado = metodo_viejo.bind(self).call(*argumentos)
 
@@ -39,8 +38,13 @@ module Contrato
         proc_invariants.each do |invariant|
           raise "Error con un invariant en #{self}:#{method_name}}" unless instance_eval(&invariant)
         end
-
-        raise "Error con un after en #{self}:#{method_name}}" unless miObjetoCopia.instance_exec(resultado,&proc_after)
+        mi_objeto_copia = self.clone
+        nombre_argumentos.each_with_index do |item, index|
+          mi_objeto_copia.define_singleton_method(item) do
+            argumentos[index]
+          end
+        end
+        raise "Error con un post en #{self}:#{method_name}}" unless mi_objeto_copia.instance_exec(resultado, &proc_after)
 
         resultado
       end

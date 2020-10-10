@@ -32,6 +32,34 @@ describe 'Prueba' do
 
 end
 
+describe 'rompiendo las copias' do
+  it 'test actualizacion de variables después de ejecutar el método principal' do
+    class Contador
+      attr_accessor :valor
+      include Contrato
+      def initialize
+        @valor = 0
+      end
+
+      post { valor > 0 }
+      def incrementar
+        @valor += 1
+      end
+
+      post {variableParametro > 0}
+      def checkeo_de_variable_parametro(variableParametro)
+        return variableParametro
+      end
+
+    end
+    un_contador=Contador.new
+    un_contador.incrementar
+    expect(un_contador.valor).to eq 1
+    expect(un_contador.checkeo_de_variable_parametro(35)).to eq 35 #lo importante de estos dos test es que no rompan
+  end
+end
+
+
 describe 'the last dance' do
   class UnaClase
     attr_accessor :energia, :potencia
@@ -65,7 +93,7 @@ describe 'the last dance' do
 
     pre {energia < 420}
     def metodoDePruebaPrioridad(energia)
-
+      energia
     end
 
     pre {energia > 10}
@@ -108,9 +136,10 @@ describe 'the last dance' do
     UnaClase.new.fumarseUnCigarro
   end
   it 'se priorizan los parametros a la hora de validar contratos en el caso de que tanto parametros como atributos tengan el mismo nombre' do
-    expect{luken = UnaClase.new
-           luken.fumarseUnCigarro
-           luken.metodoDePruebaPrioridad(450)}.to raise_error(RuntimeError)
+    expect{
+      luken = UnaClase.new
+      luken.fumarseUnCigarro
+      luken.metodoDePruebaPrioridad(450)}.to raise_error(RuntimeError)
   end
   it 'no debería pisar los métodos que se llaman igual que los parametros' do
     clase = UnaClase.new
@@ -118,5 +147,5 @@ describe 'the last dance' do
     expect(clase.metodoBanana).to eq "banana"
   end
 
-
 end
+
