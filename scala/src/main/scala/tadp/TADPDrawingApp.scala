@@ -9,7 +9,7 @@ object TADPDrawingApp extends App {
     .forScreen { adapter =>
       adapter
         .beginColor(Color.rgb(100, 100, 100))
-        .rectangle((200, 200), (400, 400))
+        .rectangle((0, 0), (400, 400))
         .end()
     }
 }
