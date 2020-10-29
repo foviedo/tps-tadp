@@ -1,3 +1,4 @@
+package tadp
 import scala.util.{Failure, Success, Try}
 
 abstract class Parser[T] {
@@ -42,6 +43,12 @@ case object integer extends Parser[Int]{
   }
 }
 
+case object double extends Parser[Double]{
+  def aplicar(unDouble:String): Try[ResultadoParser[Double]]=
+    Try {
+      ResultadoParser(unDouble.toDouble)
+    }
+}
 
 
 class StringVacioException extends Exception
