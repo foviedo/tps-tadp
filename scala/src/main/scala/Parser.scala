@@ -1,7 +1,5 @@
 import scala.util.{Failure, Success, Try}
 
-
-
 abstract class Parser[T] {
   def aplicar(entrada:String): Try[ResultadoParser[T]]
 
