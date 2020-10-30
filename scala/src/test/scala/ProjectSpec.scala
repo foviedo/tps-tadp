@@ -78,9 +78,17 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers{
         double.aplicar("bro momento").failure.exception shouldBe a [java.lang.NumberFormatException]
       }
 
-        it should "el test del tp de <|> deberia andar" in {
+        it should "deberia andar test <|> para primer parser" in {
           (char('a') <|> char('b')).aplicar("arbol") shouldBe Success(ResultadoParser('a',"rbol"))
         }
+
+        it should "deberia andar test de <|> para segundo parser" in {
+          (char('a') <|> char('b')).aplicar("bort") shouldBe Success(ResultadoParser('b',"ort"))
+        }
+
+      it should "deberia romper test de <|>" in {
+        (char('a') <|> char('b')).aplicar("kahoot").failure.exception shouldBe a [CharException]
+      }
 
 
 
