@@ -1,4 +1,4 @@
-package tadp
+package tadp.parsers
 import scala.util.{Failure, Success, Try}
 
 abstract class Parser[T] {
@@ -7,6 +7,8 @@ abstract class Parser[T] {
   def <|> (otroParser:Parser[T]):Parser[T]={
     (new <|>).combinar(this,otroParser)
   }
+
+  //def <> (otroParser:Parser[T]):Parser[(T,K)] = new Parser(T,K)
 }
 
 case object AnyChar extends Parser[Char] {
@@ -70,22 +72,23 @@ class <|>[T] {
 }
 
 
-/* TODO terminar el <>
+
+// TODO terminar el <>
+/*
 class <>[T,K]{
   def combinar(unParser:Parser[T],otroParser:Parser[K]): Parser[(T,K)] ={
     new Parser[(T, K)] {
       override def aplicar(entrada: String): Try[ResultadoParser[(T, K)]] = {
         val resultadoPrimerParser = unParser.aplicar(entrada)
         val resultadoSegundoParser = otroParser.aplicar(resultadoPrimerParser.get.loQueSobra)
+        resultadoPrimerParser match {
+          case resultadoParser: ResultadoParser(parseado,sobrante) =
+        }
+
+
       }
     }
   }
-}*/
-
-
-class StringVacioException extends Exception
-class CharException extends Exception
-class IsDigitException extends Exception
-class StringException extends Exception
-
+}
+*/
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)

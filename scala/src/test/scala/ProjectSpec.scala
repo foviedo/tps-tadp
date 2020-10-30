@@ -1,4 +1,4 @@
-package tadp
+package tadp.parsers
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 //import org.scalatest.{FreeSpec, Matchers}
 import org.scalatest.flatspec._
