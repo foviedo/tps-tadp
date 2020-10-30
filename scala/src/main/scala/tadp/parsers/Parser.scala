@@ -7,6 +7,9 @@ abstract class Parser[T] {
   def <|> (otroParser:Parser[T]):Parser[T]={
     (new <|>).combinar(this,otroParser)
   }
+  def <>[K] (otroParser:Parser[K]):Parser[(T,K)]= {
+    (new <>).combinar(this,otroParser)
+  }
 
   //def <> (otroParser:Parser[T]):Parser[(T,K)] = new Parser(T,K)
 }
@@ -73,22 +76,23 @@ class <|>[T] {
 
 
 
-// TODO terminar el <>
-/*
-class <>[T,K]{
-  def combinar(unParser:Parser[T],otroParser:Parser[K]): Parser[(T,K)] ={
-    new Parser[(T, K)] {
-      override def aplicar(entrada: String): Try[ResultadoParser[(T, K)]] = {
-        val resultadoPrimerParser = unParser.aplicar(entrada)
-        val resultadoSegundoParser = otroParser.aplicar(resultadoPrimerParser.get.loQueSobra)
-        resultadoPrimerParser match {
-          case resultadoParser: ResultadoParser(parseado,sobrante) =
-        }
-
-
+class <>[T,S]{
+  def combinar(unParser:Parser[T],otroParser:Parser[S]): Parser[(T,S)] ={
+    new Parser[(T,S)] {
+      override def aplicar(entrada: String): Try[ResultadoParser[(T,S)]] = {
+          val resultadoPrimerParser = unParser.aplicar(entrada)
+          if(resultadoPrimerParser.isFailure){
+            return Failure(new ConcatException)
+          }
+          otroParser.aplicar(unParser.aplicar(entrada).get.loQueSobra.toString) match {
+            case Success(ResultadoParser(resultadoSegundoParser,loQueSobra)) =>
+              Success(ResultadoParser((resultadoPrimerParser.get.elementoParseado,resultadoSegundoParser),loQueSobra))
+            case Failure(_) => Failure(new ConcatException)
+          }
       }
     }
   }
 }
-*/
+
+
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)

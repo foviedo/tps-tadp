@@ -83,6 +83,18 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers{
         }
 
 
+  it should "el <> deberia andar" in {
+    (string("hola") <> string("mundo")).aplicar("holamundo") shouldBe Success(ResultadoParser(("hola", "mundo"), ""))
+  }
+  it should "deberia retornar ConcatError porque el segundo tira un error" in {
+    (string("hola") <> string("mundo")).aplicar("holachau").failure.exception shouldBe a[ConcatException]
+  }
+
+  it should "deberia retornar ConcatError porque el primero tira un error" in {
+    (string("aaaa") <> string("mundo")).aplicar("holamundo").failure.exception shouldBe a[ConcatException]
+  }
+
+
 
 }
 
