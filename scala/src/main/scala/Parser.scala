@@ -4,15 +4,18 @@ import scala.util.{Failure, Success, Try}
 abstract class Parser[T] {
   def aplicar(entrada:String): Try[ResultadoParser[T]]
 
+  //def <|> (otroParser:Parser[T]):Parser[T]={
+   // (new <|>).combinar(this,otroParser)
+  //}
 }
 
 case object AnyChar extends Parser[Char] {
   def aplicar(unString: String): Try[ResultadoParser[Char]] = unString.toList match {
     case List() => Failure (new StringVacioException)
-    case head :: tail => Success (new ResultadoParser(head))
+    case head :: tail => Success (new ResultadoParser(head,tail.toString()))
   }
 }
-
+/*
 case object IsDigit extends Parser[Char] {
   def aplicar(digitoEnString:String): Try[ResultadoParser[Char]] =
     Try {
@@ -51,9 +54,35 @@ case object double extends Parser[Double]{
 }
 
 
+
+class <|>[T] {
+  def combinar(unParser:Parser[T],otroParser:Parser[T]): Parser[T] ={
+    new Parser[T]{
+      def aplicar(input:String):Try[ResultadoParser[T]]={
+        unParser.aplicar(input) match {
+          case Success(ResultadoParser(elem)) => Success(ResultadoParser(elem))
+          case Failure(_) => otroParser.aplicar(input)
+        }
+      }
+    }
+  }
+
+}
+
+class <>[T,K]{
+  def combinar(unParser:Parser[T],otroParser:Parser[K]): Parser[(T,K)] ={
+    new Parser[(T, K)] {
+      override def aplicar(entrada: String): Try[ResultadoParser[(T, K)]] = {
+        val resultadoPrimerParser = unParser.aplicar(entrada)
+      }
+    }
+  }
+}
+
+*/
 class StringVacioException extends Exception
 class CharException extends Exception
 class IsDigitException extends Exception
 class StringException extends Exception
 
-case class ResultadoParser[+T](elementoParseado: T)
+case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)

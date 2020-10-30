@@ -10,13 +10,16 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers{
 
 
     it should "deberia retornar un Success b de banana" in {
-      AnyChar.aplicar("banana").success.value == 'b'
+      AnyChar.aplicar("banana").success.value == ('b',"anana")
     }
+
+
+
     it should "deberia retornar un failure de string vacio" in {
       AnyChar.aplicar("").failure.exception shouldBe a[StringVacioException]
 
     }
-
+/*
 
     it should "deberia retornar un success con h de hola" in {
       char('h').aplicar("hola") shouldBe Success(ResultadoParser('h'))
@@ -75,6 +78,10 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers{
     double.aplicar("bro momento").failure.exception shouldBe a [java.lang.NumberFormatException]
   }
 
+  it should "el test del tp de <|> deberia andar" in {
+    (char('a') <|> char('b')).aplicar("arbol") shouldBe Success(ResultadoParser('a'))
+  }
+*/
 
 
 }
