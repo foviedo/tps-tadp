@@ -86,9 +86,9 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers{
           (char('a') <|> char('b')).aplicar("bort") shouldBe Success(ResultadoParser('b',"ort"))
         }
 
-     /* it should "deberia romper test de <|>" in {
-        (char('a') <|> char('b')).aplicar("kahoot") shouldBe a Failure[CharException]
-      }*/
+      it should "deberia romper test de <|>" in {
+        (char('a') <|> char('b')).aplicar("kahoot").failure.exception shouldBe a [CharException]
+      }
 
 
 
