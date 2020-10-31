@@ -5,3 +5,6 @@ class CharException extends Exception
 class IsDigitException extends Exception
 class StringException extends Exception
 class ConcatException extends Exception
+class RightMostException extends Exception
+class ClausuraPositivaException extends Exception
+class MapException extends Exception
