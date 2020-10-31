@@ -131,6 +131,10 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     char('a').*.aplicar("") shouldBe Success(ResultadoParser((List()),""))
   }
 
+  it should "* " in {
+    char('a').*.aplicar("bokita el + grande papa") shouldBe Success(ResultadoParser((List()),"bokita el + grande papa"))
+  }
+
   it should "test + que anda con anychar" in {
     AnyChar.+.aplicar("abcd") shouldBe Success(ResultadoParser((List('a','b','c','d')),""))
   }

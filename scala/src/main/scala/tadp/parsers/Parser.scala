@@ -18,21 +18,19 @@ abstract class Parser[T] {
   def * ():Parser[List[T]] = {
     val yo = this
     new Parser[List[T]] {
-      override def aplicar(entrada: String): Try[ResultadoParser[List[T]]] = {
+      override def aplicar(entrada: String): Try[ResultadoParser[List[T]]] = { //TODO cambiar aplicar por apply y voy a poder hacer parser("unaEntrada")
         Try {
           val listaParseados = armameLaLista(yo,entrada)
-          if(listaParseados.isEmpty){
-            ResultadoParser(listaParseados.map(elem => elem._1),"")
-          }else {
-            ResultadoParser(listaParseados.map(elem => elem._1),listaParseados.last._2)
-          }
+            ResultadoParser(listaParseados._1,listaParseados._2)
         }
 
       }
-      def armameLaLista[K](parser:Parser[T],entrada:String): List[(T,String)] ={
+      def armameLaLista[K](parser:Parser[T],entrada:String): (List[T],String) ={ //TODO armame la lista deberia retornar un resultado parser
         parser.aplicar(entrada) match {
-          case Success(ResultadoParser(parseado,sobrante)) => (parseado,sobrante):: armameLaLista(parser,sobrante)
-          case Failure(_) => Nil
+          case Success(ResultadoParser(parseado,sobranteAParsear)) =>
+            val (parseadoNuevo,sobranteNuevo) = armameLaLista(parser, sobranteAParsear)
+            (parseado:: parseadoNuevo,sobranteNuevo)
+          case Failure(_) => (List(),entrada)
         }
       }
     }
@@ -46,7 +44,7 @@ abstract class Parser[T] {
         if(clausuraDeKleene.get.elementoParseado.isEmpty){
           return Failure(new ClausuraPositivaException) //TODO: ventaja de hacerlo con pattern matching?
         } else {
-          return clausuraDeKleene
+          return clausuraDeKleene //TODO: Estoy fijandome si se cumple una condicion, rompo o devuelvo el otro. Refactor
         }
 
       }
@@ -61,7 +59,9 @@ abstract class Parser[T] {
       override def aplicar(entrada: String): Try[ResultadoParser[S]] = {
         yo.aplicar(entrada) match {
           case Success(ResultadoParser(elementoParseado,loQueSobra)) => Success(ResultadoParser(funcion(elementoParseado),loQueSobra))
-          case Failure(_) => Failure(new MapException)
+          case Failure(_) => Failure(new MapException) //TODO: mejor devolver el error original
+            //TODO 2: Juan dice que no van a revisar esto
+            //TODO 3: tampoco seamos ratas
         }
       /*  Try{
           val aplicado = yo.aplicar(entrada).get
@@ -99,7 +99,7 @@ case object IsDigit extends Parser[Char] {
   def aplicar(digitoEnString:String): Try[ResultadoParser[Char]] =
     Try {
       if (digitoEnString.toInt <= 9 && digitoEnString.toInt >= 0)
-        new ResultadoParser[Char](digitoEnString.charAt(0),"")
+        new ResultadoParser[Char](digitoEnString.charAt(0),"") //TODO: corregir, podemos usar anychar y satisfies
       else
         throw new IsDigitException
     }
@@ -128,7 +128,7 @@ case object integer extends Parser[Int]{
         enteroPosta = buscarDigitosValidos(entero).mkString("")
       }
        ResultadoParser(enteroPosta.toInt, entero.substring(enteroPosta.length))
-    }
+    } //TODO fijate si se puede usar takewhile, también puedo usar clausura de kleene y parser optional
   }
 
   def buscarDigitosValidos(entero:String):List[Char]={
@@ -158,7 +158,7 @@ case object double extends Parser[Double]{
      case Nil => Nil
      case head::tail if head.isDigit => head::buscarDigitosValidos(tail.mkString(""))
      case head::tail if head == '.' => head::integer.buscarDigitosValidos(tail.mkString(""))
-     case _::_ => Nil
+     case _::_ => Nil //TODO: refactorizar más
    }
  }
 }
@@ -207,7 +207,7 @@ class ~>[T,S]{
           case Success(ResultadoParser((_,res2),loQueSobra)) => Success(ResultadoParser(res2,loQueSobra))
           case Failure(_) => Failure(new RightMostException)
         }
-      }
+      }//TODO se puede refactorizar un poquto mas? Si no lo refactorizamos desaprobamos
     }
   }
 }
@@ -226,3 +226,5 @@ class sepBy[T,S]{
 
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
+//TODO abusar de left most y right most para las figuras
+//TODO hacer que los parser puedan usar for comprehension (ya implementamos map), tenemos que convertir Parser en una mónada
