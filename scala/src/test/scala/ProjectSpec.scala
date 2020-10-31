@@ -150,6 +150,18 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     integer.map(2.*).aplicar("27foo") shouldBe Success(ResultadoParser(54,"foo"))
   }
 
+  it should "satisfies anda" in {
+    AnyChar.satisfies('a'.==).aplicar("anana") shouldBe Success(ResultadoParser('a',"nana"))
+  }
+
+  it should "satisfies no cumple condicion" in {
+    AnyChar.satisfies('a'.==).aplicar("nana").failure.exception shouldBe a [SatisfiesException]
+  }
+
+  it should "satisfies no anda el parser original" in {
+    AnyChar.satisfies('a'.==).aplicar("").failure.exception shouldBe a [StringVacioException]
+  }
+
 
 }
 

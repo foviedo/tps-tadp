@@ -71,6 +71,19 @@ abstract class Parser[T] {
     }
   }
 
+  def satisfies(funcion: T=>Boolean):Parser[T] ={
+    val yo=this
+    new Parser[T] {
+      override def aplicar(entrada: String): Try[ResultadoParser[T]] = {
+        yo.aplicar(entrada) match {
+          case Success(ResultadoParser(elementoParseado,loQueSobra)) if funcion(elementoParseado) => Success(ResultadoParser(elementoParseado,loQueSobra))
+          case Success(_) => Failure(new SatisfiesException)
+          case Failure(fallo) => Failure(fallo)
+        }
+      }
+    }
+  }
+
 
 }
 

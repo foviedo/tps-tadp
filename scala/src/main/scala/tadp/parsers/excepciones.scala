@@ -8,3 +8,4 @@ class ConcatException extends Exception
 class RightMostException extends Exception
 class ClausuraPositivaException extends Exception
 class MapException extends Exception
+class SatisfiesException extends Exception
