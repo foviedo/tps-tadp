@@ -15,6 +15,10 @@ abstract class Parser[T] {
     (new ~>).combinar(this,otroParser)
   }
 
+  def <~[K] (otroParser:Parser[K]):Parser[K] = {
+    (new ~>).combinar(this,otroParser)
+  }
+
   def * ():Parser[List[T]] = {
     val yo = this
     new Parser[List[T]] {
