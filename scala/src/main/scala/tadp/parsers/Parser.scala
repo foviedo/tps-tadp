@@ -2,7 +2,7 @@ package tadp.parsers
 import scala.util.{Failure, Success, Try}
 
 abstract class Parser[T] {
-  def aplicar(entrada:String): Try[ResultadoParser[T]]
+  def apply(entrada:String): Try[ResultadoParser[T]]
 
   def <|> (otroParser:Parser[T]):Parser[T]={
     (new <|>).combinar(this,otroParser)
@@ -18,20 +18,20 @@ abstract class Parser[T] {
   def * ():Parser[List[T]] = {
     val yo = this
     new Parser[List[T]] {
-      override def aplicar(entrada: String): Try[ResultadoParser[List[T]]] = { //TODO cambiar aplicar por apply y voy a poder hacer parser("unaEntrada")
+      override def apply(entrada: String): Try[ResultadoParser[List[T]]] = {
         Try {
-          val listaParseados = armameLaLista(yo,entrada)
-            ResultadoParser(listaParseados._1,listaParseados._2)
+          armameLaLista(yo,entrada)
         }
 
       }
-      def armameLaLista[K](parser:Parser[T],entrada:String): (List[T],String) ={ //TODO armame la lista deberia retornar un resultado parser
-        parser.aplicar(entrada) match {
+      def armameLaLista[K](parser:Parser[T],entrada:String): ResultadoParser[List[T]] ={
+        val resultado = parser.apply(entrada) match {
           case Success(ResultadoParser(parseado,sobranteAParsear)) =>
-            val (parseadoNuevo,sobranteNuevo) = armameLaLista(parser, sobranteAParsear)
+            val ResultadoParser(parseadoNuevo,sobranteNuevo) = armameLaLista(parser, sobranteAParsear)
             (parseado:: parseadoNuevo,sobranteNuevo)
           case Failure(_) => (List(),entrada)
         }
+        return ResultadoParser(resultado._1,resultado._2)
       }
     }
   }
@@ -39,14 +39,13 @@ abstract class Parser[T] {
   def +(): Parser[List[T]] = {
     val yo= this
     new Parser[List[T]] {
-      override def aplicar(entrada: String): Try[ResultadoParser[List[T]]] = {
-        val clausuraDeKleene = yo.*().aplicar(entrada)
-        if(clausuraDeKleene.get.elementoParseado.isEmpty){
-          return Failure(new ClausuraPositivaException) //TODO: ventaja de hacerlo con pattern matching?
-        } else {
-          return clausuraDeKleene //TODO: Estoy fijandome si se cumple una condicion, rompo o devuelvo el otro. Refactor
-        }
+      override def apply(entrada: String): Try[ResultadoParser[List[T]]] = {
+        return yo.*().satisfies(this.noEstaVacio).apply(entrada)
 
+
+      }
+      def noEstaVacio(entrada: List[T]): Boolean ={
+        !(entrada.isEmpty)
       }
     }
 
@@ -56,12 +55,10 @@ abstract class Parser[T] {
   def map[S](funcion: T=>S):Parser[S] ={
     val yo= this
     new Parser[S] {
-      override def aplicar(entrada: String): Try[ResultadoParser[S]] = {
-        yo.aplicar(entrada) match {
+      override def apply(entrada: String): Try[ResultadoParser[S]] = {
+        yo.apply(entrada) match {
           case Success(ResultadoParser(elementoParseado,loQueSobra)) => Success(ResultadoParser(funcion(elementoParseado),loQueSobra))
-          case Failure(_) => Failure(new MapException) //TODO: mejor devolver el error original
-            //TODO 2: Juan dice que no van a revisar esto
-            //TODO 3: tampoco seamos ratas
+          case Failure(fail) => Failure(fail)
         }
       /*  Try{
           val aplicado = yo.aplicar(entrada).get
@@ -74,11 +71,23 @@ abstract class Parser[T] {
   def satisfies(funcion: T=>Boolean):Parser[T] ={
     val yo=this
     new Parser[T] {
-      override def aplicar(entrada: String): Try[ResultadoParser[T]] = {
-        yo.aplicar(entrada) match {
+      override def apply(entrada: String): Try[ResultadoParser[T]] = {
+        yo.apply(entrada) match {
           case Success(ResultadoParser(elementoParseado,loQueSobra)) if funcion(elementoParseado) => Success(ResultadoParser(elementoParseado,loQueSobra))
           case Success(_) => Failure(new SatisfiesException)
           case Failure(fallo) => Failure(fallo)
+        }
+      }
+    }
+  }
+
+  def opt():Parser[Option[T]] = {
+    val yo=this
+    new Parser[Option[T]] {
+      override def apply(entrada: String): Try[ResultadoParser[Option[T]]] = {
+        yo.apply(entrada) match {
+          case Success(ResultadoParser(parseado,loQueSobra)) => Success(ResultadoParser(Some(parseado),loQueSobra))
+          case Failure(exception) => Success(ResultadoParser(None,entrada))
         }
       }
     }
@@ -89,24 +98,20 @@ abstract class Parser[T] {
 
 
 case object AnyChar extends Parser[Char] {
-  def aplicar(unString: String): Try[ResultadoParser[Char]] = unString.toList match {
+  def apply(unString: String): Try[ResultadoParser[Char]] = unString.toList match {
     case List() => Failure (new StringVacioException)
     case head :: tail => Success (new ResultadoParser(head,tail.mkString("")))
   }
 }
 
 case object IsDigit extends Parser[Char] {
-  def aplicar(digitoEnString:String): Try[ResultadoParser[Char]] =
-    Try {
-      if (digitoEnString.toInt <= 9 && digitoEnString.toInt >= 0)
-        new ResultadoParser[Char](digitoEnString.charAt(0),"") //TODO: corregir, podemos usar anychar y satisfies
-      else
-        throw new IsDigitException
-    }
+  def apply(entrada:String): Try[ResultadoParser[Char]] =
+      AnyChar.satisfies(x => x.isDigit)(entrada)
+
 }
 
 case class char(inicio: Char) extends Parser[Char]{
-  def aplicar(unString: String): Try[ResultadoParser[Char]] = AnyChar.aplicar(unString) match {
+  def apply(unString: String): Try[ResultadoParser[Char]] = AnyChar.apply(unString) match {
     case Failure(_) =>  Failure(new StringVacioException)
     case Success(ResultadoParser(unChar,resto)) if unChar!= inicio => Failure(new CharException)
     case Success(ResultadoParser(unChar,resto)) if unChar == inicio => Success(new ResultadoParser(inicio,resto))
@@ -114,53 +119,41 @@ case class char(inicio: Char) extends Parser[Char]{
 }
 
 case class string(inicio: String) extends Parser[String]{
-  def aplicar(stringOriginal: String): Try[ResultadoParser[String]] =
+  def apply(stringOriginal: String): Try[ResultadoParser[String]] =
     if(stringOriginal.startsWith(inicio)) new Success(ResultadoParser[String](inicio,stringOriginal.slice(inicio.length(),stringOriginal.length()))) else Failure(new StringException)
 }
 
-case object integer extends Parser[Int]{
-  def aplicar(entero:String): Try[ResultadoParser[Int]]={
-    Try {
-      var enteroPosta: String = ""
-      if (entero.startsWith("-")) {
-        enteroPosta = ("-" + buscarDigitosValidos(entero.substring(1)).mkString(""))
-      } else {
-        enteroPosta = buscarDigitosValidos(entero).mkString("")
-      }
-       ResultadoParser(enteroPosta.toInt, entero.substring(enteroPosta.length))
-    } //TODO fijate si se puede usar takewhile, también puedo usar clausura de kleene y parser optional
-  }
-
-  def buscarDigitosValidos(entero:String):List[Char]={
-    entero.toList match {
-      case Nil => Nil
-      case head::tail if head.isDigit => head::buscarDigitosValidos(tail.mkString(""))
-      case _::_ => Nil
+case class parserSigno(elSigno: String) extends Parser[String]{
+  def apply(inicio: String): Try[ResultadoParser[String]] = {
+    string(elSigno)(inicio) match {
+      case Success(elem) => Success(elem)
+      case Failure(_) => string("")(inicio)
     }
   }
+}
+
+case object parserNumero extends Parser[String]{
+  def apply(numero: String): Try[ResultadoParser[String]] = {
+    IsDigit.+().map(lista => lista.mkString("")).apply(numero)
+
+  }
+}
+
+case object integer extends Parser[Int]{
+  def apply(entero:String): Try[ResultadoParser[Int]]={
+       (parserSigno("-") <> parserNumero).map(tupla => (tupla._1 + tupla._2).toInt).apply(entero)
+
+  }
+
 
 }
 
 case object double extends Parser[Double]{
-  def aplicar(unDouble:String): Try[ResultadoParser[Double]]=
-    Try {
-      var enteroPosta: String = ""
-      if (unDouble.startsWith("-")) {
-        enteroPosta = ("-" + buscarDigitosValidos(unDouble.substring(1)).mkString(""))
-      } else {
-        enteroPosta = buscarDigitosValidos(unDouble).mkString("")
-      }
-      ResultadoParser(enteroPosta.toDouble, unDouble.substring(enteroPosta.length))
-    }
+  def apply(unDouble:String): Try[ResultadoParser[Double]]= {
+    (((parserSigno("-") <> parserNumero) <> parserSigno(".")) <> parserNumero).map(tuplas =>
+      (tuplas._1._1._1+tuplas._1._1._2 + tuplas._1._2 + tuplas._2).toDouble)(unDouble)
+  }
 
- def buscarDigitosValidos(unDouble:String):List[Char] ={
-   unDouble.toList match {
-     case Nil => Nil
-     case head::tail if head.isDigit => head::buscarDigitosValidos(tail.mkString(""))
-     case head::tail if head == '.' => head::integer.buscarDigitosValidos(tail.mkString(""))
-     case _::_ => Nil //TODO: refactorizar más
-   }
- }
 }
 
 
@@ -168,10 +161,10 @@ case object double extends Parser[Double]{
 class <|>[T] {
   def combinar(unParser:Parser[T],otroParser:Parser[T]): Parser[T] ={
     new Parser[T]{
-      def aplicar(input:String):Try[ResultadoParser[T]]={
-        unParser.aplicar(input) match {
+      def apply(input:String):Try[ResultadoParser[T]]={
+        unParser.apply(input) match {
           case Success(ResultadoParser(head,tail)) => Success(ResultadoParser(head,tail))
-          case Failure(_) => otroParser.aplicar(input)
+          case Failure(_) => otroParser.apply(input)
         }
       }
     }
@@ -184,16 +177,15 @@ class <|>[T] {
 class <>[T,S]{
   def combinar(unParser:Parser[T],otroParser:Parser[S]): Parser[(T,S)] ={
     new Parser[(T,S)] {
-      override def aplicar(entrada: String): Try[ResultadoParser[(T,S)]] = {
-          val resultadoPrimerParser = unParser.aplicar(entrada)
-          if(resultadoPrimerParser.isFailure){ //TODO: hacerlo todo funcional
-            return Failure(new ConcatException)
-          }
-          otroParser.aplicar(unParser.aplicar(entrada).get.loQueSobra) match {
-            case Success(ResultadoParser(resultadoSegundoParser,loQueSobra)) =>
-              Success(ResultadoParser((resultadoPrimerParser.get.elementoParseado,resultadoSegundoParser),loQueSobra))
+      override def apply(entrada: String): Try[ResultadoParser[(T,S)]] = {
+        unParser.apply(entrada) match {
+          case Success(ResultadoParser(resultado1,loQueSobra)) => otroParser.apply(loQueSobra) match {
+            case Success(ResultadoParser(resultado2,loQueSobra)) =>
+              Success(ResultadoParser((resultado1,resultado2),loQueSobra))
             case Failure(_) => Failure(new ConcatException)
           }
+          case Failure(_) => Failure(new ConcatException)
+        }
       }
     }
   }
@@ -202,15 +194,25 @@ class <>[T,S]{
 class ~>[T,S]{
   def combinar(unParser:Parser[T],otroParser:Parser[S]):Parser[S] ={
     new Parser[S] {
-      override def aplicar(entrada:String): Try[ResultadoParser[S]] = {
-        (unParser <> otroParser).aplicar(entrada) match {
-          case Success(ResultadoParser((_,res2),loQueSobra)) => Success(ResultadoParser(res2,loQueSobra))
-          case Failure(_) => Failure(new RightMostException)
-        }
-      }//TODO se puede refactorizar un poquto mas? Si no lo refactorizamos desaprobamos
+      override def apply(entrada:String): Try[ResultadoParser[S]] = {
+        (unParser <> otroParser).map(elem => elem._2) (entrada)
+
+      }
     }
   }
 }
+
+class <~[T,S]{
+  def combinar(unParser:Parser[T],otroParser:Parser[S]):Parser[T] = {
+    new Parser[T] {
+      override def apply(entrada: String): Try[ResultadoParser[T]] = {
+        (unParser <> otroParser).map(elem => elem._1) (entrada)
+      }
+    }
+  }
+}
+
+
 /*
 class sepBy[T,S]{
   def combinar(parserDeContenido:Parser[T],parserSeparador:Parser[S]): Parser[T] ={
