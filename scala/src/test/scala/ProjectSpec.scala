@@ -102,6 +102,7 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
   it should "el <> deberia andar" in {
     (string("hola") <> string("mundo"))("holamundo") shouldBe Success(ResultadoParser(("hola", "mundo"), ""))
   }
+
   it should "deberia retornar ConcatError porque el segundo tira un error" in {
     (string("hola") <> string("mundo"))("holachau").failure.exception shouldBe a[ConcatException]
   }
@@ -132,6 +133,8 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
   it should "* " in {
     char('a').*.apply("bokita el + grande papa") shouldBe Success(ResultadoParser(List(),"bokita el + grande papa"))
   }
+
+
 
   it should "test + que anda con anychar" in {
     AnyChar.+.apply("abcd") shouldBe Success(ResultadoParser(List('a','b','c','d'),""))

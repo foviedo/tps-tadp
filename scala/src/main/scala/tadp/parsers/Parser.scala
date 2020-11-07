@@ -233,6 +233,7 @@ class sepBy[T,S]{
   }
 }
 
+//TODO parsearPuntos
 case object parserRectangulo extends Parser[Rectangulo] {
   def apply(unString:String): Try[ResultadoParser[Rectangulo]] ={
     Try{
@@ -257,11 +258,10 @@ case object parserTriangulo extends Parser[Triangulo] {
 
 case class Rectangulo(var verticeSuperior:(Double,Double),var verticeInferior:(Double,Double))
 
-case class Triangulo(var verticePrimero:(Double,Double),var verticeSeguro:(Double,Double),var verticeTercero:(Double,Double))
+case class Triangulo(var verticePrimero:(Double,Double), var verticeSegundo:(Double,Double), var verticeTercero:(Double,Double))
 
 
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
 //TODO abusar de left most y right most para las figuras
 //TODO hacer que los parser puedanusar for comprehension (ya implementamos map), tenemos que convertir Parser en una mónada
-
