@@ -233,6 +233,7 @@ class sepBy[T,S]{
   }
 }
 
+//TODO parsearPuntos
 case object parserRectangulo extends Parser[Rectangulo] {
   def apply(unString:String): Try[ResultadoParser[Rectangulo]] ={
     Try{
@@ -242,6 +243,19 @@ case object parserRectangulo extends Parser[Rectangulo] {
     }
   }
 }
+
+
+case object parserTriangulo extends Parser[Triangulo] {
+    def apply(unString:String): Try[ResultadoParser[Triangulo]] ={
+      Try{
+        val trianguloParseado = ((((string("triangulo")  ~> char('['))) ~> (integer.sepBy(string(" @ "))).sepBy(string(", ")).*()) <~ char(']'))(unString).get
+        ResultadoParser(new Triangulo((trianguloParseado.elementoParseado.apply(0).apply(0).apply(0),trianguloParseado.elementoParseado.apply(0).apply(0).apply(1))
+          ,(trianguloParseado.elementoParseado.apply(0).apply(1).apply(0),trianguloParseado.elementoParseado.apply(0).apply(1).apply(1))
+          ,(trianguloParseado.elementoParseado.apply(0).apply(2).apply(0),trianguloParseado.elementoParseado.apply(0).apply(2).apply(1))),trianguloParseado.loQueSobra)
+      }
+    }
+}
+
 
 case object parserCirculo extends Parser[Circulo] {
   def apply (unString:String):Try[ResultadoParser[Circulo]] ={
@@ -255,11 +269,16 @@ case object parserCirculo extends Parser[Circulo] {
 }
 
 
+
+
+case class Triangulo(var verticePrimero:(Double,Double), var verticeSegundo:(Double,Double), var verticeTercero:(Double,Double))
+
 case class Rectangulo(var verticeSuperior:(Double,Double),var verticeInferior:(Double,Double))
 case class Circulo(var centro: (Double,Double),var radio : Double)
 
 
 
+
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
 //TODO abusar de left most y right most para las figuras
-//TODO hacer que los parser puedan usar for comprehension (ya implementamos map), tenemos que convertir Parser en una mónada
+//TODO hacer que los parser puedanusar for comprehension (ya implementamos map), tenemos que convertir Parser en una mónada

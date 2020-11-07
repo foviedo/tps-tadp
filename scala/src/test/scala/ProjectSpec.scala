@@ -102,6 +102,7 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
   it should "el <> deberia andar" in {
     (string("hola") <> string("mundo"))("holamundo") shouldBe Success(ResultadoParser(("hola", "mundo"), ""))
   }
+
   it should "deberia retornar ConcatError porque el segundo tira un error" in {
     (string("hola") <> string("mundo"))("holachau").failure.exception shouldBe a[ConcatException]
   }
@@ -132,6 +133,8 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
   it should "* " in {
     char('a').*.apply("bokita el + grande papa") shouldBe Success(ResultadoParser(List(),"bokita el + grande papa"))
   }
+
+
 
   it should "test + que anda con anychar" in {
     AnyChar.+.apply("abcd") shouldBe Success(ResultadoParser(List('a','b','c','d'),""))
@@ -174,6 +177,15 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
 
   it should "deberia generar un rectangulo" in {
     parserRectangulo("rectangulo[0 @ 100, 200 @ 300]") shouldBe Success(ResultadoParser(Rectangulo((0,100),(200,300)),""))
+  //  parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeSuperior._1 shouldBe 0
+   // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeSuperior._2 shouldBe 100
+   // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeInferior._1 shouldBe 200
+   // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeInferior._2 shouldBe 300
+  }
+
+  it should "deberia generar un triangulo" in {
+    parserTriangulo("triangulo[0 @ 100, 200 @ 300, 150 @ 500]") shouldBe Success(ResultadoParser(Triangulo((0,100),(200,300),(150,500)),""))
+
 
   }
 
@@ -181,6 +193,13 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     parserCirculo("circulo[100 @ 100, 50]") shouldBe Success(ResultadoParser(Circulo((100,100),50),""))
   }
 
+//  it should "deberia retornar el string hola el <~" in {
+//    (string("hola") <~ string("mundo"))("holamundo") shouldBe Success(ResultadoParser("hola", ""))
+//  }
+//
+//  it should "<~ deberia retornar ConcatException" in {
+//    (string("hola") <~ string("mundo"))("testosterona").failure.exception shouldBe a[ConcatException]
+//  }
 
 }
 
