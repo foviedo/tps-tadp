@@ -244,6 +244,7 @@ case object parserRectangulo extends Parser[Rectangulo] {
   }
 }
 
+
 case object parserTriangulo extends Parser[Triangulo] {
     def apply(unString:String): Try[ResultadoParser[Triangulo]] ={
       Try{
@@ -256,9 +257,25 @@ case object parserTriangulo extends Parser[Triangulo] {
 }
 
 
-case class Rectangulo(var verticeSuperior:(Double,Double),var verticeInferior:(Double,Double))
+case object parserCirculo extends Parser[Circulo] {
+  def apply (unString:String):Try[ResultadoParser[Circulo]] ={
+    Try {
+      val circuloParseado = (((string("circulo")  ~> char('[')) ~> integer.sepBy(string(" @ ")).sepBy(string(", ")).*()) <~ char(']'))(unString).get
+      ResultadoParser(Circulo((circuloParseado.elementoParseado.apply(0).apply(0).apply(0),circuloParseado.elementoParseado.apply(0).apply(0).apply(1)),
+        circuloParseado.elementoParseado.apply(0).apply(1).apply(0)),circuloParseado.loQueSobra)
+    }
+
+  }
+}
+
+
+
 
 case class Triangulo(var verticePrimero:(Double,Double), var verticeSegundo:(Double,Double), var verticeTercero:(Double,Double))
+
+case class Rectangulo(var verticeSuperior:(Double,Double),var verticeInferior:(Double,Double))
+case class Circulo(var centro: (Double,Double),var radio : Double)
+
 
 
 
