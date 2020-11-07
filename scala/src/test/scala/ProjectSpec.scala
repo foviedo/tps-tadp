@@ -178,10 +178,19 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
    // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeSuperior._2 shouldBe 100
    // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeInferior._1 shouldBe 200
    // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeInferior._2 shouldBe 300
-
-
   }
 
+  it should "deberia generar un triangulo" in {
+    parserTriangulo("triangulo[0 @ 100, 200 @ 300, 150 @ 500]") shouldBe Success(ResultadoParser(Triangulo((0,100),(200,300),(150,500)),""))
+  }
+
+//  it should "deberia retornar el string hola el <~" in {
+//    (string("hola") <~ string("mundo"))("holamundo") shouldBe Success(ResultadoParser("hola", ""))
+//  }
+//
+//  it should "<~ deberia retornar ConcatException" in {
+//    (string("hola") <~ string("mundo"))("testosterona").failure.exception shouldBe a[ConcatException]
+//  }
 
 }
 
