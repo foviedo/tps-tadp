@@ -97,6 +97,9 @@ abstract class Parser[T] {
     }
   }
 
+  def limpiarString(unString:String):String = {
+    unString.filter(_ > ' ')
+  }
 
 }
 
