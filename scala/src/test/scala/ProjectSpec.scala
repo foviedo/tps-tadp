@@ -1,15 +1,13 @@
 package tadp.parsers
 
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
-//import org.scalatest.{FreeSpec, Matchers}
 import org.scalatest.flatspec._
 import org.scalatest.matchers._
-import scala.util.{Failure, Success, Try}
+import scala.util.Success
 
 
 class ProjectSpec extends AnyFlatSpec with should.Matchers {
 
-  //shouldBe Success(ResultadoParser('h',"ola")) esto es la posta!
 
   it should "deberia retornar un Success b de banana" in {
     AnyChar("banana") shouldBe Success(ResultadoParser('b', "anana"))
@@ -121,25 +119,25 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
   }
 
   it should "test * que anda con anychar" in {
-    AnyChar.*.apply("abcd") shouldBe Success(ResultadoParser((List('a','b','c','d')),""))
+    AnyChar.*.apply("abcd") shouldBe Success(ResultadoParser(List('a','b','c','d'),""))
   }
 
   it should "test * que anda con char" in {
-    char('a').*.apply("aacd") shouldBe Success(ResultadoParser((List('a','a')),"cd"))
+    char('a').*.apply("aacd") shouldBe Success(ResultadoParser(List('a','a'),"cd"))
   }
   it should "* deberia no parsear nada" in {
-    char('a').*.apply("") shouldBe Success(ResultadoParser((List()),""))
+    char('a').*.apply("") shouldBe Success(ResultadoParser(List(),""))
   }
 
   it should "* " in {
-    char('a').*.apply("bokita el + grande papa") shouldBe Success(ResultadoParser((List()),"bokita el + grande papa"))
+    char('a').*.apply("bokita el + grande papa") shouldBe Success(ResultadoParser(List(),"bokita el + grande papa"))
   }
 
   it should "test + que anda con anychar" in {
-    AnyChar.+.apply("abcd") shouldBe Success(ResultadoParser((List('a','b','c','d')),""))
+    AnyChar.+.apply("abcd") shouldBe Success(ResultadoParser(List('a','b','c','d'),""))
   }
   it should "test + que anda con char" in {
-    char('a').+.apply("aacd") shouldBe Success(ResultadoParser((List('a','a')),"cd"))
+    char('a').+.apply("aacd") shouldBe Success(ResultadoParser(List('a','a'),"cd"))
   }
 
   it should "+ deberia estallar porque no llega a parsear" in {
@@ -164,6 +162,24 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
 
   it should "satisfies no anda el parser original" in {
     AnyChar.satisfies('a'.==)("").failure.exception shouldBe a [StringVacioException]
+  }
+
+  it should "sepby que funciona" in {
+    integer.sepBy(char('-'))("4356-1234-2") shouldBe Success(ResultadoParser(List(4356,1234,2),""))
+
+  }
+  it should "sepby con string" in {
+    integer.sepBy(string(" @ ")) ("0 @ 100") shouldBe Success(ResultadoParser(List(0,100),""))
+  }
+
+  it should "deberia generar un rectangulo" in {
+    parserRectangulo("rectangulo[0 @ 100, 200 @ 300]") shouldBe Success(ResultadoParser(Rectangulo((0,100),(200,300)),""))
+  //  parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeSuperior._1 shouldBe 0
+   // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeSuperior._2 shouldBe 100
+   // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeInferior._1 shouldBe 200
+   // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeInferior._2 shouldBe 300
+
+
   }
 
 

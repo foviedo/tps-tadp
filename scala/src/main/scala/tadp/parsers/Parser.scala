@@ -15,8 +15,11 @@ abstract class Parser[T] {
     (new ~>).combinar(this,otroParser)
   }
 
-  def <~[K] (otroParser:Parser[K]):Parser[K] = {
-    (new ~>).combinar(this,otroParser)
+  def <~[K] (otroParser:Parser[K]):Parser[T] = {
+    (new <~).combinar(this,otroParser)
+  }
+  def sepBy[K] (otroParser:Parser[K]):Parser[List[T]] = {
+    (new sepBy).combinar(this,otroParser)
   }
 
   def * ():Parser[List[T]] = {
@@ -35,7 +38,7 @@ abstract class Parser[T] {
             (parseado:: parseadoNuevo,sobranteNuevo)
           case Failure(_) => (List(),entrada)
         }
-        return ResultadoParser(resultado._1,resultado._2)
+        ResultadoParser(resultado._1,resultado._2)
       }
     }
   }
@@ -44,12 +47,12 @@ abstract class Parser[T] {
     val yo= this
     new Parser[List[T]] {
       override def apply(entrada: String): Try[ResultadoParser[List[T]]] = {
-        return yo.*().satisfies(this.noEstaVacio).apply(entrada)
+        yo.*().satisfies(this.noEstaVacio).apply(entrada)
 
 
       }
       def noEstaVacio(entrada: List[T]): Boolean ={
-        !(entrada.isEmpty)
+        entrada.nonEmpty
       }
     }
 
@@ -64,10 +67,7 @@ abstract class Parser[T] {
           case Success(ResultadoParser(elementoParseado,loQueSobra)) => Success(ResultadoParser(funcion(elementoParseado),loQueSobra))
           case Failure(fail) => Failure(fail)
         }
-      /*  Try{
-          val aplicado = yo.aplicar(entrada).get
-          ResultadoParser(funcion(aplicado.elementoParseado),aplicado.loQueSobra)
-        }*/
+
       }
     }
   }
@@ -91,7 +91,7 @@ abstract class Parser[T] {
       override def apply(entrada: String): Try[ResultadoParser[Option[T]]] = {
         yo.apply(entrada) match {
           case Success(ResultadoParser(parseado,loQueSobra)) => Success(ResultadoParser(Some(parseado),loQueSobra))
-          case Failure(exception) => Success(ResultadoParser(None,entrada))
+          case Failure(_) => Success(ResultadoParser(None,entrada))
         }
       }
     }
@@ -104,7 +104,7 @@ abstract class Parser[T] {
 case object AnyChar extends Parser[Char] {
   def apply(unString: String): Try[ResultadoParser[Char]] = unString.toList match {
     case List() => Failure (new StringVacioException)
-    case head :: tail => Success (new ResultadoParser(head,tail.mkString("")))
+    case head :: tail => Success (ResultadoParser(head,tail.mkString("")))
   }
 }
 
@@ -117,14 +117,14 @@ case object IsDigit extends Parser[Char] {
 case class char(inicio: Char) extends Parser[Char]{
   def apply(unString: String): Try[ResultadoParser[Char]] = AnyChar.apply(unString) match {
     case Failure(_) =>  Failure(new StringVacioException)
-    case Success(ResultadoParser(unChar,resto)) if unChar!= inicio => Failure(new CharException)
-    case Success(ResultadoParser(unChar,resto)) if unChar == inicio => Success(new ResultadoParser(inicio,resto))
+    case Success(ResultadoParser(unChar,_)) if unChar!= inicio => Failure(new CharException)
+    case Success(ResultadoParser(unChar,resto)) if unChar == inicio => Success(ResultadoParser(inicio,resto))
   }
 }
 
 case class string(inicio: String) extends Parser[String]{
   def apply(stringOriginal: String): Try[ResultadoParser[String]] =
-    if(stringOriginal.startsWith(inicio)) new Success(ResultadoParser[String](inicio,stringOriginal.slice(inicio.length(),stringOriginal.length()))) else Failure(new StringException)
+    if(stringOriginal.startsWith(inicio)) Success(ResultadoParser[String](inicio,stringOriginal.slice(inicio.length(),stringOriginal.length()))) else Failure(new StringException)
 }
 
 case class parserSigno(elSigno: String) extends Parser[String]{
@@ -217,18 +217,36 @@ class <~[T,S]{
 }
 
 
-/*
-class sepBy[T,S]{
-  def combinar(parserDeContenido:Parser[T],parserSeparador:Parser[S]): Parser[T] ={
-    new Parser[T] {
-      override def aplicar(entrada:String): Try[ResultadoParser[T]] = {
 
+class sepBy[T,S]{
+  def combinar(parserDeContenido:Parser[T],parserSeparador:Parser[S]): Parser[List[T]] ={
+    new Parser[List[T]] {
+      override def apply(entrada:String): Try[ResultadoParser[List[T]]] = {
+        (parserDeContenido <> (parserSeparador ~> parserDeContenido).*()).map(tuplaConListaALista)(entrada)
+
+      }
+      def tuplaConListaALista (tupla:(T,List[T])) ={
+        tupla._1 :: tupla._2
       }
 
       }
   }
 }
-*/
+
+case object parserRectangulo extends Parser[Rectangulo] {
+  def apply(unString:String): Try[ResultadoParser[Rectangulo]] ={
+    Try{
+      val rectanguloParseado = ((((string("rectangulo")  ~> char('['))) ~> (integer.sepBy(string(" @ "))).sepBy(string(", ")).*()) <~ char(']'))(unString).get
+      ResultadoParser(new Rectangulo((rectanguloParseado.elementoParseado.apply(0).apply(0).apply(0),rectanguloParseado.elementoParseado.apply(0).apply(0).apply(1))
+        ,(rectanguloParseado.elementoParseado.apply(0).apply(1).apply(0),rectanguloParseado.elementoParseado.apply(0).apply(1).apply(1))),rectanguloParseado.loQueSobra)
+    }
+  }
+}
+
+
+case class Rectangulo(var verticeSuperior:(Double,Double),var verticeInferior:(Double,Double))
+
+
 
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
