@@ -7,6 +7,7 @@ abstract class Parser[T] {
   def <|> (otroParser:Parser[T]):Parser[T]={
     (new <|>).combinar(this,otroParser)
   }
+
   def <>[K] (otroParser:Parser[K]):Parser[(T,K)]= {
     (new <>).combinar(this,otroParser)
   }
@@ -67,7 +68,6 @@ abstract class Parser[T] {
           case Success(ResultadoParser(elementoParseado,loQueSobra)) => Success(ResultadoParser(funcion(elementoParseado),loQueSobra))
           case Failure(fail) => Failure(fail)
         }
-
       }
     }
   }
@@ -149,7 +149,6 @@ case object integer extends Parser[Int]{
 
   }
 
-
 }
 
 case object double extends Parser[Double]{
@@ -193,7 +192,7 @@ class <>[T,S]{
       }
     }
   }
-}
+} // Success(ResultadoParser((algoDeTipoT,algoDeTipo),loQueSobra))
 
 class ~>[T,S]{
   def combinar(unParser:Parser[T],otroParser:Parser[S]):Parser[S] ={
@@ -237,7 +236,7 @@ class sepBy[T,S]{
 case object parserRectangulo extends Parser[Rectangulo] {
   def apply(unString:String): Try[ResultadoParser[Rectangulo]] ={
     Try{
-      val rectanguloParseado = ((((string("rectangulo")  ~> char('['))) ~> (integer.sepBy(string(" @ "))).sepBy(string(", ")).*()) <~ char(']'))(unString).get
+      val rectanguloParseado = (string("rectangulo")  ~> char('[') ~> integer.sepBy(string(" @ ")).sepBy(string(", ")).*() <~ char(']'))(unString).get
       ResultadoParser(new Rectangulo((rectanguloParseado.elementoParseado.apply(0).apply(0).apply(0),rectanguloParseado.elementoParseado.apply(0).apply(0).apply(1))
         ,(rectanguloParseado.elementoParseado.apply(0).apply(1).apply(0),rectanguloParseado.elementoParseado.apply(0).apply(1).apply(1))),rectanguloParseado.loQueSobra)
     }
@@ -248,13 +247,15 @@ case object parserRectangulo extends Parser[Rectangulo] {
 case object parserTriangulo extends Parser[Triangulo] {
     def apply(unString:String): Try[ResultadoParser[Triangulo]] ={
       Try{
-        val trianguloParseado = ((((string("triangulo")  ~> char('['))) ~> (integer.sepBy(string(" @ "))).sepBy(string(", ")).*()) <~ char(']'))(unString).get
-        ResultadoParser(new Triangulo((trianguloParseado.elementoParseado.apply(0).apply(0).apply(0),trianguloParseado.elementoParseado.apply(0).apply(0).apply(1))
-          ,(trianguloParseado.elementoParseado.apply(0).apply(1).apply(0),trianguloParseado.elementoParseado.apply(0).apply(1).apply(1))
-          ,(trianguloParseado.elementoParseado.apply(0).apply(2).apply(0),trianguloParseado.elementoParseado.apply(0).apply(2).apply(1))),trianguloParseado.loQueSobra)
+        val trianguloParseado = ((((string("triangulo")  ~> char('['))) ~> (integer.sepBy(string(" @ "))).sepBy(string(", "))) <~ char(']'))(unString).get
+        val trianguloConContenidoExtraido = trianguloParseado.elementoParseado
+        ResultadoParser(new Triangulo((trianguloConContenidoExtraido.apply(0).apply(0),trianguloConContenidoExtraido.apply(0).apply(1))
+          ,(trianguloConContenidoExtraido.apply(1).apply(0),trianguloConContenidoExtraido.apply(1).apply(1))
+          ,(trianguloConContenidoExtraido.apply(2).apply(0),trianguloConContenidoExtraido.apply(2).apply(1))),trianguloParseado.loQueSobra)
       }
-    }
-}
+    } //TODO: Usar map
+  //TODO: abstraer lo de las coordenadas, puedo terminar teniendo una lista de coordenadas, también puedo hacer pattern matching
+} //TODO: hacer que el sepby se fije de la cantidad de elementos
 
 
 case object parserCirculo extends Parser[Circulo] {
@@ -268,11 +269,14 @@ case object parserCirculo extends Parser[Circulo] {
   }
 }
 
+/*case object parserFigura extends Parser[] {
+
+}*/
+//TODO: solucionar el problema de los whitespace
 
 
-
+//TODO: usar un trait que defina el supertipo o algo así
 case class Triangulo(var verticePrimero:(Double,Double), var verticeSegundo:(Double,Double), var verticeTercero:(Double,Double))
-
 case class Rectangulo(var verticeSuperior:(Double,Double),var verticeInferior:(Double,Double))
 case class Circulo(var centro: (Double,Double),var radio : Double)
 
@@ -280,5 +284,6 @@ case class Circulo(var centro: (Double,Double),var radio : Double)
 
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
-//TODO abusar de left most y right most para las figuras
 //TODO hacer que los parser puedanusar for comprehension (ya implementamos map), tenemos que convertir Parser en una mónada
+
+//TODO inspirarse en la clase del microprocesador para el tema de los dibujos, mas que nada para lo de simplificar

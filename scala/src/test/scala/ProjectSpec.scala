@@ -177,10 +177,7 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
 
   it should "deberia generar un rectangulo" in {
     parserRectangulo("rectangulo[0 @ 100, 200 @ 300]") shouldBe Success(ResultadoParser(Rectangulo((0,100),(200,300)),""))
-  //  parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeSuperior._1 shouldBe 0
-   // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeSuperior._2 shouldBe 100
-   // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeInferior._1 shouldBe 200
-   // parserRectangulo("rectangulo[0 @ 100, 200 @ 300]").get.elementoParseado.verticeInferior._2 shouldBe 300
+
   }
 
   it should "deberia generar un triangulo" in {
