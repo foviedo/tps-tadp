@@ -163,6 +163,10 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     AnyChar.satisfies('a'.==)("nana").failure.exception shouldBe a [SatisfiesException]
   }
 
+  it should "limpiarString elimina \\n \\t \\s" in {
+    AnyChar.limpiarString("       h\tola -    c h\nau()@[]-~,,,  ") shouldBe "hola-chau()@[]-~,,,"
+  }
+
   it should "satisfies no anda el parser original" in {
     AnyChar.satisfies('a'.==)("").failure.exception shouldBe a [StringVacioException]
   }
