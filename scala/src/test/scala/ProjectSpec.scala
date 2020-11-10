@@ -180,6 +180,16 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
 
   }
 
+  it should "deberia estallar por pasar un rectangulo con mas de dos coordenada" in {
+    parserRectangulo("rectangulo[0 @ 100, 200 @ 300, 300 @ 200]").failure.exception shouldBe a [ConcatException]
+
+  }
+
+  it should "deberia estallar por pasar un rectangulo con menos de dos coordenada" in {
+    parserRectangulo("rectangulo[0 @ 100]").failure.exception shouldBe a [ConcatException]
+
+  }
+
   it should "deberia generar un triangulo" in {
     parserTriangulo("triangulo[0 @ 100, 200 @ 300, 150 @ 500]") shouldBe Success(ResultadoParser(Triangulo((0,100),(200,300),(150,500)),""))
 

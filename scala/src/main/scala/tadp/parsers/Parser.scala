@@ -19,9 +19,16 @@ abstract class Parser[T] {
   def <~[K] (otroParser:Parser[K]):Parser[T] = {
     (new <~).combinar(this,otroParser)
   }
+
+  def sepByn[K] (otroParser:Parser[K],cantidad:Int):Parser[List[T]] = {
+    (new sepByn).combinar(this,otroParser,cantidad)
+  }
+
   def sepBy[K] (otroParser:Parser[K]):Parser[List[T]] = {
     (new sepBy).combinar(this,otroParser)
   }
+
+
 
   def * ():Parser[List[T]] = {
     val yo = this
@@ -232,13 +239,25 @@ class sepBy[T,S]{
   }
 }
 
+class sepByn[T,S] {
+  def combinar (parserDeContenido:Parser[T],parserSeparador:Parser[S], cantidadDeVeces: Int): Parser[List[T]] ={
+    return new Parser[List[T]] {
+      override def apply(entrada: String): Try[ResultadoParser[List[T]]] = {
+        (new sepBy).combinar(parserDeContenido,parserSeparador).satisfies(x => x.length == cantidadDeVeces)(entrada)
+      }
+    }
+  }
+}
+
 //TODO parsearPuntos
+
+
 case object parserRectangulo extends Parser[Rectangulo] {
   def apply(unString:String): Try[ResultadoParser[Rectangulo]] ={
     Try{
-      val rectanguloParseado = (string("rectangulo")  ~> char('[') ~> integer.sepBy(string(" @ ")).sepBy(string(", ")).*() <~ char(']'))(unString).get
-      ResultadoParser(new Rectangulo((rectanguloParseado.elementoParseado.apply(0).apply(0).apply(0),rectanguloParseado.elementoParseado.apply(0).apply(0).apply(1))
-        ,(rectanguloParseado.elementoParseado.apply(0).apply(1).apply(0),rectanguloParseado.elementoParseado.apply(0).apply(1).apply(1))),rectanguloParseado.loQueSobra)
+      val rectanguloParseado = (string("rectangulo")  ~> char('[') ~> integer.sepBy(string(" @ ")).sepByn(string(", "),2) <~ char(']'))(unString).get
+      ResultadoParser(new Rectangulo((rectanguloParseado.elementoParseado.apply(0).apply(0),rectanguloParseado.elementoParseado.apply(0).apply(1))
+        ,(rectanguloParseado.elementoParseado.apply(1).apply(0),rectanguloParseado.elementoParseado.apply(1).apply(1))),rectanguloParseado.loQueSobra)
     }
   }
 }
@@ -261,9 +280,9 @@ case object parserTriangulo extends Parser[Triangulo] {
 case object parserCirculo extends Parser[Circulo] {
   def apply (unString:String):Try[ResultadoParser[Circulo]] ={
     Try {
-      val circuloParseado = (((string("circulo")  ~> char('[')) ~> integer.sepBy(string(" @ ")).sepBy(string(", ")).*()) <~ char(']'))(unString).get
-      ResultadoParser(Circulo((circuloParseado.elementoParseado.apply(0).apply(0).apply(0),circuloParseado.elementoParseado.apply(0).apply(0).apply(1)),
-        circuloParseado.elementoParseado.apply(0).apply(1).apply(0)),circuloParseado.loQueSobra)
+      val circuloParseado = (((string("circulo")  ~> char('[')) ~> integer.sepBy(string(" @ ")).sepBy(string(", "))) <~ char(']'))(unString).get
+      ResultadoParser(Circulo((circuloParseado.elementoParseado.apply(0).apply(0),circuloParseado.elementoParseado.apply(0).apply(1)),
+        circuloParseado.elementoParseado.apply(1).apply(0)),circuloParseado.loQueSobra)
     }
 
   }
