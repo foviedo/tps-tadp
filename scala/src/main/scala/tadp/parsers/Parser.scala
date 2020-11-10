@@ -104,10 +104,13 @@ abstract class Parser[T] {
     }
   }
 
-  def limpiarString(unString:String):String = {
+
+}
+
+object limpiadorDeString {
+  def apply (unString:String):String = {
     unString.filter(_ > ' ')
   }
-
 }
 
 
@@ -252,49 +255,66 @@ class sepByn[T,S] {
   }
 }
 
-//TODO parsearPuntos
 
+
+
+case class parserPuntos(cantidad:Int) extends Parser[List[punto2D]] {
+  def apply(unString:String): Try[ResultadoParser[List[punto2D]]] = {
+    (char('[') ~> (integer.sepBy(string("@"))).sepByn(string(","),cantidad) <~ char(']')).map(x => listaDeListaDeIntAListaDeTupla(x))(unString)
+  }
+
+  def listaDeListaDeIntAListaDeTupla (dobleLista : List[List[Int]]): List[punto2D] = {
+    dobleLista.map(listita => new punto2D(listita.apply(0),listita.apply(1)))
+  }
+}
 
 case object parserRectangulo extends Parser[Rectangulo] {
   def apply(unString:String): Try[ResultadoParser[Rectangulo]] ={
     Try{
-      val rectanguloParseado = (string("rectangulo")  ~> char('[') ~> integer.sepBy(string(" @ ")).sepByn(string(", "),2) <~ char(']'))(unString).get
-      ResultadoParser(new Rectangulo((rectanguloParseado.elementoParseado.apply(0).apply(0),rectanguloParseado.elementoParseado.apply(0).apply(1))
-        ,(rectanguloParseado.elementoParseado.apply(1).apply(0),rectanguloParseado.elementoParseado.apply(1).apply(1))),rectanguloParseado.loQueSobra)
+      val rectanguloParseado = (string("rectangulo")   ~> parserPuntos(2))(limpiadorDeString(unString)).get
+      ResultadoParser(new Rectangulo((rectanguloParseado.elementoParseado.apply(0).x,rectanguloParseado.elementoParseado.apply(0).y)
+        ,(rectanguloParseado.elementoParseado.apply(1).x,rectanguloParseado.elementoParseado.apply(1).y)),rectanguloParseado.loQueSobra)
     }
   }
 }
 
-
 case object parserTriangulo extends Parser[Triangulo] {
     def apply(unString:String): Try[ResultadoParser[Triangulo]] ={
       Try{
-        val trianguloParseado = ((((string("triangulo")  ~> char('['))) ~> (integer.sepBy(string(" @ "))).sepBy(string(", "))) <~ char(']'))(unString).get
+        val trianguloParseado = (string("triangulo") ~> parserPuntos(3))(limpiadorDeString(unString)).get
         val trianguloConContenidoExtraido = trianguloParseado.elementoParseado
-        ResultadoParser(new Triangulo((trianguloConContenidoExtraido.apply(0).apply(0),trianguloConContenidoExtraido.apply(0).apply(1))
-          ,(trianguloConContenidoExtraido.apply(1).apply(0),trianguloConContenidoExtraido.apply(1).apply(1))
-          ,(trianguloConContenidoExtraido.apply(2).apply(0),trianguloConContenidoExtraido.apply(2).apply(1))),trianguloParseado.loQueSobra)
+        ResultadoParser(new Triangulo((trianguloConContenidoExtraido.apply(0).x,trianguloConContenidoExtraido.apply(0).y)
+          ,(trianguloConContenidoExtraido.apply(1).x,trianguloConContenidoExtraido.apply(1).y)
+          ,(trianguloConContenidoExtraido.apply(2).x,trianguloConContenidoExtraido.apply(2).y)),trianguloParseado.loQueSobra)
       }
     } //TODO: Usar map
-  //TODO: abstraer lo de las coordenadas, puedo terminar teniendo una lista de coordenadas, también puedo hacer pattern matching
-} //TODO: hacer que el sepby se fije de la cantidad de elementos
-
-
+}
 case object parserCirculo extends Parser[Circulo] {
   def apply (unString:String):Try[ResultadoParser[Circulo]] ={
     Try {
-      val circuloParseado = (((string("circulo")  ~> char('[')) ~> integer.sepBy(string(" @ ")).sepBy(string(", "))) <~ char(']'))(unString).get
+      val circuloParseado = (string("circulo")  ~> parserPuntos(2))(limpiadorDeString(unString).dropRight(1) + "@0]").get
+      ResultadoParser(new Circulo( (circuloParseado.elementoParseado.apply(0).x,circuloParseado.elementoParseado.apply(0).y),
+        (circuloParseado.elementoParseado.apply(1).x)),circuloParseado.loQueSobra)
+    }
+
+  }
+}
+/*case object parserCirculo extends Parser[Circulo] {
+  def apply (unString:String):Try[ResultadoParser[Circulo]] ={
+    Try {
+      val circuloParseado = (((string("circulo")  ~> char('[')) ~> integer.sepBy(string("@")).sepBy(string(","))) <~ char(']'))(limpiadorDeString(unString)).get
       ResultadoParser(Circulo((circuloParseado.elementoParseado.apply(0).apply(0),circuloParseado.elementoParseado.apply(0).apply(1)),
         circuloParseado.elementoParseado.apply(1).apply(0)),circuloParseado.loQueSobra)
     }
 
   }
-}
+}*/
+
+
 
 /*case object parserFigura extends Parser[] {
 
 }*/
-//TODO: solucionar el problema de los whitespace
 
 
 //TODO: usar un trait que defina el supertipo o algo así
@@ -306,6 +326,7 @@ case class Circulo(var centro: (Double,Double),var radio : Double)
 
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
+case class punto2D (x:Int, y:Int)
 //TODO hacer que los parser puedanusar for comprehension (ya implementamos map), tenemos que convertir Parser en una mónada
 
 //TODO inspirarse en la clase del microprocesador para el tema de los dibujos, mas que nada para lo de simplificar
