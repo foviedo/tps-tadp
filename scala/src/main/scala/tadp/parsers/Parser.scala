@@ -310,31 +310,35 @@ case object parserCirculo extends Parser[Figura]{
 case object parserGrupo extends Parser[Figura] {
   def apply(unString:String):Try[ResultadoParser[Figura]] = {
     val funcion: List[Figura] => Figura = {laLista => Grupo(laLista)}
-    ((string("grupo(") ~> (new parserFigura).sepBy(char(','))) <~ char(')')).map(funcion) (limpiadorDeString(unString))
+    ((string("grupo(") ~> parserFigura.sepBy(char(','))) <~ char(')')).map(funcion) (limpiadorDeString(unString))
 
    // val rectanguloParseado = (((string("rectangulo")  ~> char('['))) ~> (integer.sepBy(string(" @ "))).sepBy(string(", ")).*()) <~ char(']')
 
   }
 }
 
-case class parserFigura() extends Parser[Figura] {
+case object parserFigura extends Parser[Figura] {
   def apply(unString:String):Try[ResultadoParser[Figura]] = {
     (((parserCirculo <|> parserRectangulo) <|> parserTriangulo) <|> parserGrupo) (unString)
   }
 }
 
-case object parserColor extends Parser[Color]
+case object parserColor extends Parser[FiguraColor] {
+  def apply(unString:String): Try[ResultadoParser[FiguraColor]] = {
+    ((string("color[") ~> integer.sepByn(char(','),3)  <~ string("](")) <> parserFigura <~ char(')')).map(tupla => FiguraColor(tupla._2,Color(tupla._1(0),tupla._1(1),tupla._1(2)))) (limpiadorDeString(unString))
+  }
+}
 
 trait Figura
-//TODO: usar un trait que defina el supertipo o algo así
 case class Triangulo(var verticePrimero: punto2D, var verticeSegundo: punto2D, var verticeTercero: punto2D) extends Figura
 case class Rectangulo(var verticeSuperior: punto2D,var verticeInferior: punto2D) extends Figura
 case class Circulo(var centro: punto2D,var radio : Double) extends Figura
 case class Grupo(var elementos: List[Figura]) extends Figura
-case class Color(var elemento: Figura, var color: )
+case class FiguraColor(var elemento: Figura, var color:Color )
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
 case class punto2D (x:Double, y:Double)
+case class Color(R:Int,G:Int,B:Int)
 //TODO hacer que los parser puedanusar for comprehension (ya implementamos map), tenemos que convertir Parser en una mónada
 
 //TODO inspirarse en la clase del microprocesador para el tema de los dibujos, mas que nada para lo de simplificar
