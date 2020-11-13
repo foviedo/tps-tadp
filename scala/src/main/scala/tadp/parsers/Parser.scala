@@ -310,19 +310,29 @@ case object parserCirculo extends Parser[Figura]{
   }
 }*/
 
-case class parserFigura[T]() extends Parser[Figura] {
+case class parserFigura() extends Parser[Figura] {
   def apply(unString:String):Try[ResultadoParser[Figura]] = {
     ((parserCirculo <|> parserRectangulo) <|> parserTriangulo) (unString)
   }
 }
+
+case class parserGrupo() extends Parser[Figura] {
+  def apply(unString:String):Try[ResultadoParser[Figura]] = {
+    var listaParseada = (new parserFigura).sepBy(char(','))(limpiadorDeString(unString))
+    Try {
+      ResultadoParser(new Grupo(listaParseada.get.elementoParseado),listaParseada.get.loQueSobra)
+    }
+  }
+}
+
+
 
 trait Figura
 //TODO: usar un trait que defina el supertipo o algo así
 case class Triangulo(var verticePrimero: punto2D, var verticeSegundo: punto2D, var verticeTercero: punto2D) extends Figura
 case class Rectangulo(var verticeSuperior: punto2D,var verticeInferior: punto2D) extends Figura
 case class Circulo(var centro: punto2D,var radio : Double) extends Figura
-
-
+case class Grupo(var elementos: List[Figura]) extends Figura
 
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
