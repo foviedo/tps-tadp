@@ -180,7 +180,7 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
   }
 
   it should "deberia generar un rectangulo" in {
-    parserRectangulo("rectangulo[0 @ 100, 200 @ 300]") shouldBe Success(ResultadoParser(Rectangulo((0,100),(200,300)),""))
+    parserRectangulo("rectangulo[0 @ 100, 200 @ 300]") shouldBe Success(ResultadoParser(Rectangulo(punto2D(0,100),punto2D(200,300)),""))
 
   }
 
@@ -195,13 +195,13 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
   }
 
   it should "deberia generar un triangulo" in {
-    parserTriangulo("triangulo[0 @ 100, 200 @ 300, 150 @ 500]") shouldBe Success(ResultadoParser(Triangulo((0,100),(200,300),(150,500)),""))
+    parserTriangulo("triangulo[0 @ 100, 200 @ 300, 150 @ 500]") shouldBe Success(ResultadoParser(Triangulo(punto2D(0,100), punto2D(200,300), punto2D(150,500)),""))
 
 
   }
 
   it should "deberia generar un circulo" in {
-    parserCirculo("circulo[100 @ 100, 50]") shouldBe Success(ResultadoParser(Circulo((100,100),50),""))
+    parserCirculo("circulo[100 @ 100, 50]") shouldBe Success(ResultadoParser(Circulo(punto2D(100,100),50),""))
   }
 
 //  it should "deberia retornar el string hola el <~" in {

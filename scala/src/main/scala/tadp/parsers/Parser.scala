@@ -268,32 +268,32 @@ case class parserPuntos(cantidad:Int) extends Parser[List[punto2D]] {
   }
 }
 
-case object parserRectangulo extends Parser[Rectangulo] {
-  def apply(unString:String): Try[ResultadoParser[Rectangulo]] ={
+case object parserRectangulo extends Parser[Figura[Rectangulo]] {
+  def apply(unString:String): Try[ResultadoParser[Figura[Rectangulo]]] ={
     Try{
       val rectanguloParseado = (string("rectangulo")   ~> parserPuntos(2))(limpiadorDeString(unString)).get
-      ResultadoParser(new Rectangulo((rectanguloParseado.elementoParseado.apply(0).x,rectanguloParseado.elementoParseado.apply(0).y)
-        ,(rectanguloParseado.elementoParseado.apply(1).x,rectanguloParseado.elementoParseado.apply(1).y)),rectanguloParseado.loQueSobra)
+      ResultadoParser(new Rectangulo((rectanguloParseado.elementoParseado.apply(0))
+        ,rectanguloParseado.elementoParseado.apply(1)),rectanguloParseado.loQueSobra)
     }
   }
 }
 
-case object parserTriangulo extends Parser[Triangulo] {
-    def apply(unString:String): Try[ResultadoParser[Triangulo]] ={
+case object parserTriangulo extends Parser[Figura[Triangulo]] {
+    def apply(unString:String): Try[ResultadoParser[Figura[Triangulo]]] ={
       Try{
         val trianguloParseado = (string("triangulo") ~> parserPuntos(3))(limpiadorDeString(unString)).get
         val trianguloConContenidoExtraido = trianguloParseado.elementoParseado
-        ResultadoParser(new Triangulo((trianguloConContenidoExtraido.apply(0).x,trianguloConContenidoExtraido.apply(0).y)
-          ,(trianguloConContenidoExtraido.apply(1).x,trianguloConContenidoExtraido.apply(1).y)
-          ,(trianguloConContenidoExtraido.apply(2).x,trianguloConContenidoExtraido.apply(2).y)),trianguloParseado.loQueSobra)
+        ResultadoParser(new Triangulo(trianguloConContenidoExtraido.apply(0)
+          ,trianguloConContenidoExtraido.apply(1)
+          ,trianguloConContenidoExtraido.apply(2)), trianguloParseado.loQueSobra)
       }
     } //TODO: Usar map
 }
-case object parserCirculo extends Parser[Circulo] {
-  def apply (unString:String):Try[ResultadoParser[Circulo]] ={
+case object parserCirculo extends Parser[Figura[Circulo]]{
+  def apply (unString:String):Try[ResultadoParser[Figura[Circulo]]] ={
     Try {
       val circuloParseado = (string("circulo")  ~> parserPuntos(2))(limpiadorDeString(unString).dropRight(1) + "@0]").get
-      ResultadoParser(new Circulo( (circuloParseado.elementoParseado.apply(0).x,circuloParseado.elementoParseado.apply(0).y),
+      ResultadoParser(new Circulo(circuloParseado.elementoParseado.apply(0),
         circuloParseado.elementoParseado.apply(1).x),circuloParseado.loQueSobra)
     }
 
@@ -309,24 +309,27 @@ case object parserCirculo extends Parser[Circulo] {
 
   }
 }*/
+/*
+case class parserFigura[T]() extends Parser[Figura[T]] {
+  def apply(unString:String):Try[ResultadoParser[Figura[T]]] = {
+     parserCirculo <|> parserRectangulo
+  }
+}*/ //Esto no anda
 
+trait Figura[+T]
 
-
-/*case object parserFigura extends Parser[] {
-
-}*/
 
 
 //TODO: usar un trait que defina el supertipo o algo así
-case class Triangulo(var verticePrimero:(Double,Double), var verticeSegundo:(Double,Double), var verticeTercero:(Double,Double))
-case class Rectangulo(var verticeSuperior:(Double,Double),var verticeInferior:(Double,Double))
-case class Circulo(var centro: (Double,Double),var radio : Double)
+case class Triangulo(var verticePrimero: punto2D, var verticeSegundo: punto2D, var verticeTercero: punto2D) extends Figura[Triangulo]
+case class Rectangulo(var verticeSuperior: punto2D,var verticeInferior: punto2D) extends Figura[Rectangulo]
+case class Circulo(var centro: punto2D,var radio : Double) extends Figura[Circulo]
 
 
 
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
-case class punto2D (x:Int, y:Int)
+case class punto2D (x:Double, y:Double)
 //TODO hacer que los parser puedanusar for comprehension (ya implementamos map), tenemos que convertir Parser en una mónada
 
 //TODO inspirarse en la clase del microprocesador para el tema de los dibujos, mas que nada para lo de simplificar
