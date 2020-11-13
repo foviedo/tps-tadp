@@ -294,7 +294,7 @@ case object parserCirculo extends Parser[Circulo] {
     Try {
       val circuloParseado = (string("circulo")  ~> parserPuntos(2))(limpiadorDeString(unString).dropRight(1) + "@0]").get
       ResultadoParser(new Circulo( (circuloParseado.elementoParseado.apply(0).x,circuloParseado.elementoParseado.apply(0).y),
-        (circuloParseado.elementoParseado.apply(1).x)),circuloParseado.loQueSobra)
+        circuloParseado.elementoParseado.apply(1).x),circuloParseado.loQueSobra)
     }
 
   }
