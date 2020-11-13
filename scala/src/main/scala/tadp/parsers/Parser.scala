@@ -268,8 +268,8 @@ case class parserPuntos(cantidad:Int) extends Parser[List[punto2D]] {
   }
 }
 
-case object parserRectangulo extends Parser[Figura[Rectangulo]] {
-  def apply(unString:String): Try[ResultadoParser[Figura[Rectangulo]]] ={
+case object parserRectangulo extends Parser[Figura] {
+  def apply(unString:String): Try[ResultadoParser[Figura]] ={
     Try{
       val rectanguloParseado = (string("rectangulo")   ~> parserPuntos(2))(limpiadorDeString(unString)).get
       ResultadoParser(new Rectangulo((rectanguloParseado.elementoParseado.apply(0))
@@ -278,8 +278,8 @@ case object parserRectangulo extends Parser[Figura[Rectangulo]] {
   }
 }
 
-case object parserTriangulo extends Parser[Figura[Triangulo]] {
-    def apply(unString:String): Try[ResultadoParser[Figura[Triangulo]]] ={
+case object parserTriangulo extends Parser[Figura] {
+    def apply(unString:String): Try[ResultadoParser[Figura]] ={
       Try{
         val trianguloParseado = (string("triangulo") ~> parserPuntos(3))(limpiadorDeString(unString)).get
         val trianguloConContenidoExtraido = trianguloParseado.elementoParseado
@@ -289,8 +289,8 @@ case object parserTriangulo extends Parser[Figura[Triangulo]] {
       }
     } //TODO: Usar map
 }
-case object parserCirculo extends Parser[Figura[Circulo]]{
-  def apply (unString:String):Try[ResultadoParser[Figura[Circulo]]] ={
+case object parserCirculo extends Parser[Figura]{
+  def apply (unString:String):Try[ResultadoParser[Figura]] ={
     Try {
       val circuloParseado = (string("circulo")  ~> parserPuntos(2))(limpiadorDeString(unString).dropRight(1) + "@0]").get
       ResultadoParser(new Circulo(circuloParseado.elementoParseado.apply(0),
@@ -309,21 +309,18 @@ case object parserCirculo extends Parser[Figura[Circulo]]{
 
   }
 }*/
-/*
-case class parserFigura[T]() extends Parser[Figura[T]] {
-  def apply(unString:String):Try[ResultadoParser[Figura[T]]] = {
-     parserCirculo <|> parserRectangulo
+
+case class parserFigura[T]() extends Parser[Figura] {
+  def apply(unString:String):Try[ResultadoParser[Figura]] = {
+    ((parserCirculo <|> parserRectangulo) <|> parserTriangulo) (unString)
   }
-}*/ //Esto no anda
+}
 
-trait Figura[+T]
-
-
-
+trait Figura
 //TODO: usar un trait que defina el supertipo o algo así
-case class Triangulo(var verticePrimero: punto2D, var verticeSegundo: punto2D, var verticeTercero: punto2D) extends Figura[Triangulo]
-case class Rectangulo(var verticeSuperior: punto2D,var verticeInferior: punto2D) extends Figura[Rectangulo]
-case class Circulo(var centro: punto2D,var radio : Double) extends Figura[Circulo]
+case class Triangulo(var verticePrimero: punto2D, var verticeSegundo: punto2D, var verticeTercero: punto2D) extends Figura
+case class Rectangulo(var verticeSuperior: punto2D,var verticeInferior: punto2D) extends Figura
+case class Circulo(var centro: punto2D,var radio : Double) extends Figura
 
 
 
