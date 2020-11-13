@@ -210,6 +210,50 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     parserCirculo("circulo[100 @ 100, 50]") shouldBe Success(ResultadoParser(Circulo(punto2D(100,100),50),""))
   }
 
+  it should "Parser grupo deberia parsear un grupo" in {
+    val unString = "grupo(\n      triangulo[200 @ 50, 101 @ 335, 299 @ 335],circulo[200 @ 350, 100])"
+    parserGrupo (unString) shouldBe Success(ResultadoParser(Grupo(List(
+      Triangulo(punto2D(200,50), punto2D(101,335), punto2D(299,335)),
+      Circulo(punto2D(200,350),100)))
+      ,""))
+  }
+
+  it should "Parser grupo deberia parsear grupos anidados" in {
+    val unString = " grupo(grupo( triangulo[250 @ 150, 150 @ 300, 350 @ 300],  triangulo[150 @ 300, 50 @ 450, 250 @ 450], triangulo[350 @ 300, 250 @ 450, 450 @ 450]  ),grupo(      rectangulo[460 @ 90, 470 @ 100], rectangulo[430 @ 210, 500 @ 220], rectangulo[430 @ 210, 440 @ 230], rectangulo[490 @ 210, 500 @ 230], rectangulo[450 @ 100, 480 @ 260] )) "
+
+    parserGrupo (unString) shouldBe Success(ResultadoParser(Grupo(List(
+      Grupo(List(
+        Triangulo(punto2D(250, 150), punto2D(150, 300), punto2D(350, 300)),
+        Triangulo(punto2D(150, 300), punto2D(50, 450), punto2D(250, 450)),
+        Triangulo(punto2D(350, 300), punto2D(250, 450), punto2D(450, 450))
+      )),
+      Grupo(List(
+        Rectangulo(punto2D(460, 90), punto2D(470, 100)),
+        Rectangulo(punto2D(430, 210), punto2D(500, 220)),
+        Rectangulo(punto2D(430, 210), punto2D(440, 230)),
+        Rectangulo(punto2D(490, 210), punto2D(500, 230)),
+        Rectangulo(punto2D(450, 100), punto2D(480, 260))
+      ))
+    ))
+      ,""))
+
+  }
+
+  it should "Parser grupo deberia parsear grupos anidados1" in {
+    val unString = " grupo(grupo( triangulo[250 @ 150, 150 @ 300, 350 @ 300] ),grupo(      rectangulo[460 @ 90, 470 @ 100] )) "
+
+    parserGrupo (unString) shouldBe Success(ResultadoParser(Grupo(List(
+      Grupo(List(
+        Triangulo(punto2D(250, 150), punto2D(150, 300), punto2D(350, 300))
+      )),
+      Grupo(List(
+        Rectangulo(punto2D(460, 90), punto2D(470, 100))
+      ))
+    ))
+      ,""))
+
+  }
+
 //  it should "deberia retornar el string hola el <~" in {
 //    (string("hola") <~ string("mundo"))("holamundo") shouldBe Success(ResultadoParser("hola", ""))
 //  }

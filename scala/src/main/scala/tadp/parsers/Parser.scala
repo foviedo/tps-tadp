@@ -205,7 +205,7 @@ class <>[T,S]{
       }
     }
   }
-} // Success(ResultadoParser((algoDeTipoT,algoDeTipo),loQueSobra))
+}
 
 class ~>[T,S]{
   def combinar(unParser:Parser[T],otroParser:Parser[S]):Parser[S] ={
@@ -260,12 +260,17 @@ class sepByn[T,S] {
 
 case class parserPuntos(cantidad:Int) extends Parser[List[punto2D]] {
   def apply(unString:String): Try[ResultadoParser[List[punto2D]]] = {
-    (char('[') ~> (integer.sepBy(string("@"))).sepByn(string(","),cantidad) <~ char(']')).map(x => listaDeListaDeIntAListaDeTupla(x))(unString)
+    (char('[') ~> parserPuntos <~ char(']')).map(x => listaDeListaDeIntAListaDeTupla(x))(unString)
   }
 
-  def listaDeListaDeIntAListaDeTupla (dobleLista : List[List[Int]]): List[punto2D] = {
+  def parserPuntos = {
+    (integer.sepBy(string("@"))).sepByn(string(","), cantidad)
+  }
+
+  def listaDeListaDeIntAListaDeTupla(dobleLista : List[List[Int]]): List[punto2D] = {
     dobleLista.map(listita => new punto2D(listita.apply(0),listita.apply(1)))
   }
+
 }
 
 case object parserRectangulo extends Parser[Figura] {
@@ -289,43 +294,36 @@ case object parserTriangulo extends Parser[Figura] {
       }
     } //TODO: Usar map
 }
+
+// 0 @ 10, 20 -> List(List(0,10),List(20))
+
 case object parserCirculo extends Parser[Figura]{
   def apply (unString:String):Try[ResultadoParser[Figura]] ={
-    Try {
-      val circuloParseado = (string("circulo")  ~> parserPuntos(2))(limpiadorDeString(unString).dropRight(1) + "@0]").get
-      ResultadoParser(new Circulo(circuloParseado.elementoParseado.apply(0),
-        circuloParseado.elementoParseado.apply(1).x),circuloParseado.loQueSobra)
-    }
+      val dobleListaACirculo: List[List[Int]] => Figura = elem => Circulo(punto2D(elem.apply(0).apply(0),elem.apply(0).apply(1)),elem.apply(1).apply(0))
+      ((string("circulo[") ~> new parserPuntos(2).parserPuntos) <~ char(']')).map(dobleListaACirculo)(limpiadorDeString(unString))
+  }
+}
+
+
+
+
+case object parserGrupo extends Parser[Figura] {
+  def apply(unString:String):Try[ResultadoParser[Figura]] = {
+    val funcion: List[Figura] => Figura = {laLista => Grupo(laLista)}
+    ((string("grupo(") ~> (new parserFigura).sepBy(char(','))) <~ char(')')).map(funcion) (limpiadorDeString(unString))
+
+   // val rectanguloParseado = (((string("rectangulo")  ~> char('['))) ~> (integer.sepBy(string(" @ "))).sepBy(string(", ")).*()) <~ char(']')
 
   }
 }
-/*case object parserCirculo extends Parser[Circulo] {
-  def apply (unString:String):Try[ResultadoParser[Circulo]] ={
-    Try {
-      val circuloParseado = (((string("circulo")  ~> char('[')) ~> integer.sepBy(string("@")).sepBy(string(","))) <~ char(']'))(limpiadorDeString(unString)).get
-      ResultadoParser(Circulo((circuloParseado.elementoParseado.apply(0).apply(0),circuloParseado.elementoParseado.apply(0).apply(1)),
-        circuloParseado.elementoParseado.apply(1).apply(0)),circuloParseado.loQueSobra)
-    }
-
-  }
-}*/
 
 case class parserFigura() extends Parser[Figura] {
   def apply(unString:String):Try[ResultadoParser[Figura]] = {
-    ((parserCirculo <|> parserRectangulo) <|> parserTriangulo) (unString)
+    (((parserCirculo <|> parserRectangulo) <|> parserTriangulo) <|> parserGrupo) (unString)
   }
 }
 
-case class parserGrupo() extends Parser[Figura] {
-  def apply(unString:String):Try[ResultadoParser[Figura]] = {
-    var listaParseada = (new parserFigura).sepBy(char(','))(limpiadorDeString(unString))
-    Try {
-      ResultadoParser(new Grupo(listaParseada.get.elementoParseado),listaParseada.get.loQueSobra)
-    }
-  }
-}
-
-
+case object parserColor extends Parser[Color]
 
 trait Figura
 //TODO: usar un trait que defina el supertipo o algo así
@@ -333,7 +331,7 @@ case class Triangulo(var verticePrimero: punto2D, var verticeSegundo: punto2D, v
 case class Rectangulo(var verticeSuperior: punto2D,var verticeInferior: punto2D) extends Figura
 case class Circulo(var centro: punto2D,var radio : Double) extends Figura
 case class Grupo(var elementos: List[Figura]) extends Figura
-
+case class Color(var elemento: Figura, var color: )
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
 case class punto2D (x:Double, y:Double)
