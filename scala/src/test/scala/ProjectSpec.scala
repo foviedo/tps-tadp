@@ -284,6 +284,38 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     parserTraslacion(string) shouldBe Success(ResultadoParser(FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Traslacion(200, 50)), ""))
   }
 
+//  ███████╗██╗███╗   ███╗██████╗ ██╗     ██╗███████╗██╗ ██████╗ █████╗ ██████╗  ██████╗ ██████╗
+//  ██╔════╝██║████╗ ████║██╔══██╗██║     ██║██╔════╝██║██╔════╝██╔══██╗██╔══██╗██╔═══██╗██╔══██╗
+//  ███████╗██║██╔████╔██║██████╔╝██║     ██║█████╗  ██║██║     ███████║██║  ██║██║   ██║██████╔╝
+//  ╚════██║██║██║╚██╔╝██║██╔═══╝ ██║     ██║██╔══╝  ██║██║     ██╔══██║██║  ██║██║   ██║██╔══██╗
+//  ███████║██║██║ ╚═╝ ██║██║     ███████╗██║██║     ██║╚██████╗██║  ██║██████╔╝╚██████╔╝██║  ██║
+//  ╚══════╝╚═╝╚═╝     ╚═╝╚═╝     ╚══════╝╚═╝╚═╝     ╚═╝ ╚═════╝╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═╝  ╚═╝
+
+  it should "figura simple de doble color" in {
+    val string = "color[60.0, 150.0, 200.0](color[1.0,1.0,1.0](triangulo[0 @ 100, 200 @ 300, 150 @ 500]))"
+    simplificador(parserColor(string).get.elementoParseado) shouldBe FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Color(1, 1, 1))
+  }
+
+  it should "simplificacion 1" in {
+    /*  - Si tenemos una transformación de color aplicada a otra transformacion de color, debería quedar la de adentro.
+        - Si tenemos una transformación aplicada a todos los hijos de un grupo, eso debería convertirse en una
+        transformación aplicada al grupo.
+     */
+    val malo = """grupo(
+                   |	color[200, 200, 200](rectangulo[100 @ 100, 200 @ 200]),
+                   |	color[200, 200, 200](circulo[100 @ 300, 150])
+                   |)""".stripMargin
+
+    val bueno = """color[200, 200, 200](
+                  |   grupo(
+                  |	rectangulo[100 @ 100, 200 @ 200],
+                  |	circulo[100 @ 300, 150]
+                  |   )
+                  |)""".stripMargin
+
+    simplificador(parserGrupo(malo).get.elementoParseado) shouldBe simplificador(parserColor(bueno).get.elementoParseado)
+  }
+
 //  it should "deberia retornar el string hola el <~" in {
 //    (string("hola") <~ string("mundo"))("holamundo") shouldBe Success(ResultadoParser("hola", ""))
 //  }

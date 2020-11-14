@@ -1,0 +1,92 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	/01b9fc86/
+0f3e8501-261d-4203-baa5-9e75ef7092bb	scala/.idea/workspace.xml	/^      <changelist id="0f3e8501-261d-4203-baa5-9e75ef7092bb" name="Default Changelist" comment=""/;"	i
+0f3e8501-261d-4203-baa5-9e75ef7092bb	scala/.idea/workspace.xml	/^    <list default="true" id="0f3e8501-261d-4203-baa5-9e75ef7092bb" name="Default Changelist" com/;"	i
+1hjbH1oldidZIoRBfnlPImJxolQ	.idea/workspace.xml	/^  <component name="ProjectId" id="1hjbH1oldidZIoRBfnlPImJxolQ" \/>$/;"	i
+1hjbJHCC7ZWENgpCsXCk98KJfZc	ruby/.idea/workspace.xml	/^  <component name="ProjectId" id="1hjbJHCC7ZWENgpCsXCk98KJfZc" \/>$/;"	i
+1iqRwPV0qHGTYnY4ugUHZ12rqmN	scala/.idea/workspace.xml	/^  <component name="ProjectId" id="1iqRwPV0qHGTYnY4ugUHZ12rqmN" \/>$/;"	i
+4137ed4d-49dc-4521-8c29-bc4ca0e74286	.idea/workspace.xml	/^      <changelist id="4137ed4d-49dc-4521-8c29-bc4ca0e74286" name="Default Changelist" comment=""/;"	i
+4137ed4d-49dc-4521-8c29-bc4ca0e74286	.idea/workspace.xml	/^    <list default="true" id="4137ed4d-49dc-4521-8c29-bc4ca0e74286" name="Default Changelist" com/;"	i
+Atleta	ruby/spec/test_spec.rb	/^    class Atleta$/;"	c	mixin:include:Contrato
+ClassMethods	ruby/lib/contrato.rb	/^  module ClassMethods$/;"	m	module:Contrato
+Contador	ruby/spec/test_spec.rb	/^    class Contador$/;"	c	mixin:include:Contrato
+Contrato	ruby/lib/contrato.rb	/^module Contrato$/;"	m
+Default	.idea/workspace.xml	/^    <task active="true" id="Default" summary="Default task">$/;"	i
+Default	ruby/.idea/workspace.xml	/^    <task active="true" id="Default" summary="Default task">$/;"	i
+Default	scala/.idea/workspace.xml	/^    <task active="true" id="Default" summary="Default task">$/;"	i
+LOCAL-00001	ruby/.idea/workspace.xml	/^    <task id="LOCAL-00001" summary="Self en method_added">$/;"	i
+LOCAL-00002	ruby/.idea/workspace.xml	/^    <task id="LOCAL-00002" summary="before_and_after_each_call">$/;"	i
+LOCAL-00003	ruby/.idea/workspace.xml	/^    <task id="LOCAL-00003" summary="before_and_after no se pisan">$/;"	i
+Prueba	ruby/spec/test_spec.rb	/^describe 'Prueba' do$/;"	d
+RUBY_RSPEC	ruby/.idea/workspace.xml	/^      <predefined_log_file enabled="true" id="RUBY_RSPEC" \/>$/;"	i
+RUBY_TESTUNIT	ruby/.idea/workspace.xml	/^      <predefined_log_file enabled="true" id="RUBY_TESTUNIT" \/>$/;"	i
+TADP	README.md	/^# TADP$/;"	c
+UnaClase	ruby/spec/test_spec.rb	/^  class UnaClase$/;"	c	mixin:include:Contrato
+after	ruby/lib/contrato.rb	/^    def after$/;"	f	module:Contrato.ClassMethods
+before	ruby/lib/contrato.rb	/^    def before$/;"	f	module:Contrato.ClassMethods
+before_and_after_each_call	ruby/lib/contrato.rb	/^    def before_and_after_each_call(before = proc {}, after = proc {})$/;"	f	module:Contrato.ClassMethods
+checkeo_de_variable_parametro	ruby/spec/test_spec.rb	/^      def checkeo_de_variable_parametro(variable_parametro)$/;"	f	class:Contador
+codegrid	scala/target/scala-2.13/scoverage-report/tadp/TADPDrawingApp.scala.html	/^          <div class="tab-pane active" id="codegrid">$/;"	I
+codegrid	scala/target/scala-2.13/scoverage-report/tadp/internal/TADPDrawingAdapter.scala.html	/^          <div class="tab-pane active" id="codegrid">$/;"	I
+codegrid	scala/target/scala-2.13/scoverage-report/tadp/internal/TADPDrawingScreen.scala.html	/^          <div class="tab-pane active" id="codegrid">$/;"	I
+codegrid	scala/target/scala-2.13/scoverage-report/tadp/internal/TADPInteractiveDrawingScreen.scala.html	/^          <div class="tab-pane active" id="codegrid">$/;"	I
+codegrid	scala/target/scala-2.13/scoverage-report/tadp/parsers/Parser.scala.html	/^          <div class="tab-pane active" id="codegrid">$/;"	I
+correr	ruby/spec/test_spec.rb	/^    def correr()$/;"	f	class:UnaClase
+edad	ruby/spec/test_spec.rb	/^      attr_accessor :nombre, :edad, :velocidad$/;"	A	class:Atleta
+edad=	ruby/spec/test_spec.rb	/^      attr_accessor :nombre, :edad, :velocidad$/;"	A	class:Atleta
+energia	ruby/spec/test_spec.rb	/^    attr_accessor :energia, :potencia$/;"	A	class:UnaClase
+energia=	ruby/spec/test_spec.rb	/^    attr_accessor :energia, :potencia$/;"	A	class:UnaClase
+f0d7ad3c-e33e-47ec-850a-478b74e843c9	ruby/.idea/workspace.xml	/^      <changelist id="f0d7ad3c-e33e-47ec-850a-478b74e843c9" name="Default Changelist" comment=""/;"	i
+f0d7ad3c-e33e-47ec-850a-478b74e843c9	ruby/.idea/workspace.xml	/^    <list default="true" id="f0d7ad3c-e33e-47ec-850a-478b74e843c9" name="Default Changelist" com/;"	i
+fumarse_un_cigarro	ruby/spec/test_spec.rb	/^    def fumarse_un_cigarro$/;"	f	class:UnaClase
+included	ruby/lib/contrato.rb	/^  def self.included(base)$/;"	S	module:Contrato
+incrementar	ruby/spec/test_spec.rb	/^      def incrementar$/;"	f	class:Contador
+initialize	ruby/spec/test_spec.rb	/^      def initialize$/;"	f	class:Contador
+initialize	ruby/spec/test_spec.rb	/^      def initialize(nombre, velocidad, edad)$/;"	f	class:Atleta
+initialize	ruby/spec/test_spec.rb	/^    def initialize$/;"	f	class:UnaClase
+invariant	ruby/lib/contrato.rb	/^    def invariant(&block)$/;"	f	module:Contrato.ClassMethods
+invariants	ruby/lib/contrato.rb	/^    def invariants$/;"	f	module:Contrato.ClassMethods
+method_added	ruby/lib/contrato.rb	/^    def method_added(method_name)$/;"	f	module:Contrato.ClassMethods
+metodo	ruby/spec/test_spec.rb	/^      def metodo(edad)$/;"	f	class:Atleta
+metodo_banana	ruby/spec/test_spec.rb	/^    def metodo_banana$/;"	f	class:UnaClase
+metodo_de_prueba_prioridad	ruby/spec/test_spec.rb	/^    def metodo_de_prueba_prioridad(energia)$/;"	f	class:UnaClase
+nombre	ruby/spec/test_spec.rb	/^      attr_accessor :nombre, :edad, :velocidad$/;"	A	class:Atleta
+nombre=	ruby/spec/test_spec.rb	/^      attr_accessor :nombre, :edad, :velocidad$/;"	A	class:Atleta
+post	ruby/lib/contrato.rb	/^    def post(&block)$/;"	f	module:Contrato.ClassMethods
+potencia	ruby/spec/test_spec.rb	/^    attr_accessor :energia, :potencia$/;"	A	class:UnaClase
+potencia=	ruby/spec/test_spec.rb	/^    attr_accessor :energia, :potencia$/;"	A	class:UnaClase
+pre	ruby/lib/contrato.rb	/^    def pre(&block)$/;"	f	module:Contrato.ClassMethods
+rompiendo las copias	ruby/spec/test_spec.rb	/^describe 'rompiendo las copias' do$/;"	d
+sbt.version	scala/project/build.properties	/^sbt.version=1.3.10$/;"	k
+statementlist	scala/target/scala-2.13/scoverage-report/tadp/TADPDrawingApp.scala.html	/^          <div class="tab-pane" id="statementlist">$/;"	I
+statementlist	scala/target/scala-2.13/scoverage-report/tadp/internal/TADPDrawingAdapter.scala.html	/^          <div class="tab-pane" id="statementlist">$/;"	I
+statementlist	scala/target/scala-2.13/scoverage-report/tadp/internal/TADPDrawingScreen.scala.html	/^          <div class="tab-pane" id="statementlist">$/;"	I
+statementlist	scala/target/scala-2.13/scoverage-report/tadp/internal/TADPInteractiveDrawingScreen.scala.html	/^          <div class="tab-pane" id="statementlist">$/;"	I
+statementlist	scala/target/scala-2.13/scoverage-report/tadp/parsers/Parser.scala.html	/^          <div class="tab-pane" id="statementlist">$/;"	I
+the last dance	ruby/spec/test_spec.rb	/^describe 'the last dance' do$/;"	d
+title	scala/target/scala-2.13/scoverage-report/index.html	/^    <title id='title'>Scoverage Code Coverage<\/title>$/;"	I
+title	scala/target/scala-2.13/scoverage-report/overview.html	/^      <title id="title">Scoverage Code Coverage<\/title>$/;"	I
+title	scala/target/scala-2.13/scoverage-report/packages.html	/^        <title id="title">$/;"	I
+title	scala/target/scala-2.13/scoverage-report/tadp.html	/^      <title id="title">Scoverage Code Coverage<\/title>$/;"	I
+title	scala/target/scala-2.13/scoverage-report/tadp.internal.html	/^      <title id="title">Scoverage Code Coverage<\/title>$/;"	I
+title	scala/target/scala-2.13/scoverage-report/tadp.parsers.html	/^      <title id="title">Scoverage Code Coverage<\/title>$/;"	I
+title	scala/target/scala-2.13/scoverage-report/tadp/TADPDrawingApp.scala.html	/^        <title id="title">$/;"	I
+title	scala/target/scala-2.13/scoverage-report/tadp/internal/TADPDrawingAdapter.scala.html	/^        <title id="title">$/;"	I
+title	scala/target/scala-2.13/scoverage-report/tadp/internal/TADPDrawingScreen.scala.html	/^        <title id="title">$/;"	I
+title	scala/target/scala-2.13/scoverage-report/tadp/internal/TADPInteractiveDrawingScreen.scala.html	/^        <title id="title">$/;"	I
+title	scala/target/scala-2.13/scoverage-report/tadp/parsers/Parser.scala.html	/^        <title id="title">$/;"	I
+tomar_cerveza	ruby/spec/test_spec.rb	/^    def tomar_cerveza(gramos)$/;"	f	class:UnaClase
+un_meto	ruby/spec/test_spec.rb	/^    def un_meto(param)$/;"	f	class:UnaClase
+un_metodo_que_pidio_juan	ruby/spec/test_spec.rb	/^    def un_metodo_que_pidio_juan(metodo_banana)$/;"	f	class:UnaClase
+valor	ruby/spec/test_spec.rb	/^      attr_accessor :valor$/;"	A	class:Contador
+valor=	ruby/spec/test_spec.rb	/^      attr_accessor :valor$/;"	A	class:Contador
+velocidad	ruby/spec/test_spec.rb	/^      attr_accessor :nombre, :edad, :velocidad$/;"	A	class:Atleta
+velocidad=	ruby/spec/test_spec.rb	/^      attr_accessor :nombre, :edad, :velocidad$/;"	A	class:Atleta
+ver_param	ruby/spec/test_spec.rb	/^    def ver_param(param)$/;"	f	class:UnaClase
