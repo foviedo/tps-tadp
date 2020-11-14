@@ -259,6 +259,27 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     parserColor(string) shouldBe Success(ResultadoParser(FiguraTransformada(Grupo(List(Triangulo(punto2D(200,50),punto2D(101,335),punto2D(299,335)),Circulo(punto2D(200,350),100))),Color(60,150,200)),""))
   }
 
+  it should "parser de escala" in {
+    val string = """escala[2.5, 1.0](
+                   |	rectangulo[0 @ 100, 200 @ 300]
+                   |)""".stripMargin
+    parserEscala(string) shouldBe Success(ResultadoParser(FiguraTransformada(Rectangulo(punto2D(0, 100), punto2D(200, 300)), Escala(2.5, 1.0)), ""))
+  }
+
+  it should "parser de rotacion" in {
+    val string = """rotacion[45.0](
+                   |	rectangulo[300 @ 0, 500 @ 200]
+                   |)""".stripMargin
+    parserRotacion(string) shouldBe Success(ResultadoParser(FiguraTransformada(Rectangulo(punto2D(300, 0), punto2D(500, 200)), Rotacion(45)), ""))
+  }
+
+  it should "parser de traslación" in {
+    val string = """traslacion[200.0, 50.0](
+                   |	triangulo[0 @ 100, 200 @ 300, 150 @ 500]
+                   |)""".stripMargin
+    parserTraslacion(string) shouldBe Success(ResultadoParser(FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Traslacion(200, 50)), ""))
+  }
+
 //  it should "deberia retornar el string hola el <~" in {
 //    (string("hola") <~ string("mundo"))("holamundo") shouldBe Success(ResultadoParser("hola", ""))
 //  }
