@@ -376,8 +376,6 @@ case object simplificador {
   }
 }
 
-
-
 object dibujarFigura{
   def apply(unaFigura:Figura): TADPDrawingAdapter => TADPDrawingAdapter = unaFigura match {
     case Rectangulo(verticeSuperior,verticeInferior) =>  dibujarRectangulo (verticeInferior,verticeSuperior)
@@ -415,12 +413,16 @@ object dibujarCirculo {
   }
 }
 
+//object dibujarGrupo {
+//  def apply(grupo: Grupo): TADPDrawingAdapter => TADPDrawingAdapter ={
+//    val primero = grupo.elementos.head
+//    //grupo.elementos.fold( figura => dibujarFigura(figura).compose(semilla))
+//    grupo.elementos.fold(grupo.elementos.head) {unElemento => dibujarGrupo(unElemento)}
+//  }
+//}
+
 object dibujarGrupo {
-  def apply(grupo: Grupo): TADPDrawingAdapter => TADPDrawingAdapter ={
-    val primero = grupo.elementos.head
-    //grupo.elementos.fold( figura => dibujarFigura(figura).compose(semilla))
-    grupo.elementos.fold(dibujarFigura(grupo.elementos.head)) compose
-  }
+  ???
 }
 
 
