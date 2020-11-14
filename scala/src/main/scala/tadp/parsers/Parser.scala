@@ -364,13 +364,20 @@ case object parserTraslacion extends Parser[Figura] {
 
 case object simplificador {
   def apply(unaFigura: Figura): Figura = {
-    val laFiguraGrupo:Grupo = unaFigura.asInstanceOf[Grupo]
+   // val laFiguraGrupo:Grupo = unaFigura.asInstanceOf[Grupo]
+   // val funcion: FiguraTransformada => Figura = elem => elem.elemento
     unaFigura match {
       case FiguraTransformada(FiguraTransformada(figura,Color(r1,g1,b1)),Color(_,_,_)) => simplificador(FiguraTransformada(figura,Color(r1,g1,b1)))
-     /* case Grupo(lista) if lista.forall(elem => elem match {
+      /*case Grupo(lista) if lista.forall(elem => elem match {
         case FiguraTransformada(figura, transformacion) if transformacion == laFiguraGrupo.elementos(0).asInstanceOf[FiguraTransformada].transformacion  => true
         case _ => false
-      }) => FiguraTransformada(Grupo(),Color())*/
+      }) => FiguraTransformada(Grupo(laFiguraGrupo.elementos.map(funcion)),laFiguraGrupo.elementos(0).asInstanceOf[FiguraTransformada].transformacion)*/
+      case FiguraTransformada(FiguraTransformada(figura,Rotacion(grados1)),Rotacion(grados2)) => simplificador(FiguraTransformada(figura,Rotacion(grados1+grados2)))
+      case FiguraTransformada(FiguraTransformada(figura, Escala(x1,y1)),Escala(x2,y2)) => simplificador(FiguraTransformada(figura,Escala(x1*x2,y1*y2)))
+      case FiguraTransformada(FiguraTransformada(figura,Traslacion(x1,y1)),Traslacion(x2,y2)) => simplificador(FiguraTransformada(figura,Traslacion(x1+x2,y1+y2)))
+      case FiguraTransformada(figura,Rotacion(0)) => simplificador(figura)
+      case FiguraTransformada(figura,Escala(1.0,1.0)) => simplificador(figura)
+      case FiguraTransformada(figura,Traslacion(0,0)) => simplificador(figura)
       case figura => figura
     }
   }
