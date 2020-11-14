@@ -323,7 +323,7 @@ case object parserGrupo extends Parser[Figura] {
 
 case object parserFigura extends Parser[Figura] {
   def apply(unString:String):Try[ResultadoParser[Figura]] = {
-    (((parserCirculo <|> parserRectangulo) <|> parserTriangulo) <|> parserGrupo) (unString)
+    (parserCirculo <|> parserRectangulo <|> parserTriangulo <|> parserGrupo <|> parserColor <|> parserEscala <|> parserRotacion <|> parserTraslacion) (unString)
   }
 }
 
@@ -359,6 +359,20 @@ case object parserTraslacion extends Parser[Figura] {
   def apply(unString:String): Try[ResultadoParser[Figura]] = {
     val funcion: ((List[Double], Figura)) => Figura = tupla => FiguraTransformada(tupla._2,Traslacion(tupla._1(0),tupla._1(1)))
     parserTransformacion(2,"traslacion",funcion) (limpiadorDeString(unString))
+  }
+}
+
+case object simplificador {
+  def apply(unaFigura: Figura): Figura = {
+    val laFiguraGrupo:Grupo = unaFigura.asInstanceOf[Grupo]
+    unaFigura match {
+      case FiguraTransformada(FiguraTransformada(figura,Color(r1,g1,b1)),Color(_,_,_)) => simplificador(FiguraTransformada(figura,Color(r1,g1,b1)))
+     /* case Grupo(lista) if lista.forall(elem => elem match {
+        case FiguraTransformada(figura, transformacion) if transformacion == laFiguraGrupo.elementos(0).asInstanceOf[FiguraTransformada].transformacion  => true
+        case _ => false
+      }) => FiguraTransformada(Grupo(),Color())*/
+      case figura => figura
+    }
   }
 }
 
