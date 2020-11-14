@@ -3,6 +3,8 @@ package tadp.parsers
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec._
 import org.scalatest.matchers._
+import tadp.internal.TADPDrawingAdapter
+
 import scala.util.Success
 
 
@@ -284,6 +286,23 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     parserTraslacion(string) shouldBe Success(ResultadoParser(FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Traslacion(200, 50)), ""))
   }
 
+  it should "dasda" in{
+    val circuloParseado = parserCirculo("circulo[200 @ 350, 100]")
+    val circulo = circuloParseado.get.elementoParseado
+
+    val trianguloParseado = parserTriangulo("triangulo[150 @ 300, 50 @ 450, 250 @ 450]")
+    val triangulo = trianguloParseado.get.elementoParseado
+
+    val rectanguloParseado = parserRectangulo("rectangulo[0 @ 100, 200 @ 300]")
+    val rectangulo = rectanguloParseado.get.elementoParseado
+
+
+    val figurita = dibujarFigura(circulo)
+    val otraFigurita = dibujarFigura(triangulo)
+    val terceraFigurita = dibujarFigura(rectangulo)
+
+ //este test es solo para instanciar objetos y ver cómo tipan.
+  }
 //  ███████╗██╗███╗   ███╗██████╗ ██╗     ██╗███████╗██╗ ██████╗ █████╗ ██████╗  ██████╗ ██████╗
 //  ██╔════╝██║████╗ ████║██╔══██╗██║     ██║██╔════╝██║██╔════╝██╔══██╗██╔══██╗██╔═══██╗██╔══██╗
 //  ███████╗██║██╔████╔██║██████╔╝██║     ██║█████╗  ██║██║     ███████║██║  ██║██║   ██║██████╔╝

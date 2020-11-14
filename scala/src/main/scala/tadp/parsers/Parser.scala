@@ -379,7 +379,7 @@ case object simplificador {
 
 
 object dibujarFigura{
-  def apply(unaFigura:Figura): Unit = unaFigura match {
+  def apply(unaFigura:Figura): TADPDrawingAdapter => TADPDrawingAdapter = unaFigura match {
     case Rectangulo(verticeSuperior,verticeInferior) =>  dibujarRectangulo (verticeInferior,verticeSuperior)
     case Triangulo(verticePrimero,verticeSegundo,verticeTercero) => dibujarTriangulo (verticePrimero,verticeSegundo,verticeTercero)
     case Circulo(centro,radio) => dibujarCirculo (centro,radio)
@@ -396,19 +396,21 @@ object dibujarFigura{
 //} queda comentado porque este dibuja posta, aunque no nos sirve. El resto son iguales que este básicamente.
 
 object dibujarRectangulo {
-  def apply(verticeSuperior: punto2D,verticeInferior: punto2D): TADPDrawingAdapter => Any = {
+  def apply(verticeSuperior: punto2D,verticeInferior: punto2D): TADPDrawingAdapter => TADPDrawingAdapter = {
     adapter => adapter.rectangle((verticeInferior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
   }
 }
 
 object dibujarTriangulo {
-  def apply(verticePrimero: punto2D,verticeSegundo: punto2D,verticeTercero: punto2D): TADPDrawingAdapter => Any ={
+  def apply(verticePrimero: punto2D,verticeSegundo: punto2D,verticeTercero: punto2D): TADPDrawingAdapter => TADPDrawingAdapter ={
+       // val triangulo: TADPDrawingAdapter = new TADPDrawingAdapter().triangle()
+
   adapter => adapter.triangle((verticePrimero.x,verticePrimero.y),(verticeSegundo.x,verticeSegundo.y),(verticeTercero.x,verticeTercero.y))
   }
 }
 
 object dibujarCirculo {
-  def apply(centro: punto2D,radio: Double): TADPDrawingAdapter => Any ={
+  def apply(centro: punto2D,radio: Double): TADPDrawingAdapter => TADPDrawingAdapter ={
     adapter => adapter.circle((centro.x, centro.y), radio)
   }
 }
