@@ -378,6 +378,8 @@ case object simplificador {
       case FiguraTransformada(figura,Rotacion(0)) => simplificador(figura)
       case FiguraTransformada(figura,Escala(1.0,1.0)) => simplificador(figura)
       case FiguraTransformada(figura,Traslacion(0,0)) => simplificador(figura)
+      case FiguraTransformada(figura, transformacion) => FiguraTransformada(simplificador(figura),transformacion)
+      case Grupo(elementos) => Grupo(elementos.map(unaFigura => simplificador(unaFigura)))
       case figura => figura
     }
   }

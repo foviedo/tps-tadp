@@ -261,10 +261,7 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     parserColor(string) shouldBe Success(ResultadoParser(FiguraTransformada(Grupo(List(Triangulo(punto2D(200,50),punto2D(101,335),punto2D(299,335)),Circulo(punto2D(200,350),100))),Color(60,150,200)),""))
   }
 
-  it should "figura simple de doble color" in {
-    val string = "color[60.0, 150.0, 200.0](color[1.0,1.0,1.0](triangulo[0 @ 100, 200 @ 300, 150 @ 500]))"
-    simplificador(parserColor(string).get.elementoParseado) shouldBe FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Color(1, 1, 1))
-  }
+
 
     it should "parser de escala" in {
     val string = """escala[2.5, 1.0](
@@ -316,7 +313,7 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     simplificador(parserColor(string).get.elementoParseado) shouldBe FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Color(1, 1, 1))
   }
 
-  it should "simplificacion 1" in {
+ /* it should "simplificacion 1" in {
     /*  - Si tenemos una transformación de color aplicada a otra transformacion de color, debería quedar la de adentro.
         - Si tenemos una transformación aplicada a todos los hijos de un grupo, eso debería convertirse en una
         transformación aplicada al grupo.
@@ -334,6 +331,55 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
                   |)""".stripMargin
 
     simplificador(parserGrupo(malo).get.elementoParseado) shouldBe simplificador(parserColor(bueno).get.elementoParseado)
+  }*/
+
+  it should "rotacion sumada" in {
+    val string = "rotacion[300.0](\n\trotacion[10.0](\n\t\trectangulo[100 @ 200, 300 @ 400]\n\t)\n)"
+    simplificador(parserRotacion(string).get.elementoParseado) shouldBe FiguraTransformada(Rectangulo(punto2D(100,200),punto2D(300,400)),Rotacion(310))
+  }
+
+  it should "escala multiplicada" in {
+    val string = "escala[2.0, 3.0](\n      escala[3.0, 5.0](\n\t     circulo[0 @ 5, 10]\n      )\n)"
+    simplificador(parserEscala(string).get.elementoParseado) shouldBe FiguraTransformada(Circulo(punto2D(0,5),10),Escala(6,15))
+  }
+
+  it should "traslacion sumada" in {
+    val string = "traslacion[100.0, 5.0](\n\ttraslacion[20.0, 10.0](\n\t\tcirculo[0 @ 5, 10]\n)\n)"
+    simplificador(parserTraslacion(string).get.elementoParseado) shouldBe FiguraTransformada(Circulo(punto2D(0,5),10),Traslacion(120,15))
+  }
+
+  it should "rotacion 0 grados" in {
+    val string = "rotacion[0.0](\n\t\trectangulo[100 @ 200, 300 @ 400]\n\t)\n)"
+    simplificador(parserRotacion(string)  .get.elementoParseado) shouldBe Rectangulo(punto2D(100,200),punto2D(300,400))
+  }
+
+  it should "escala de 1" in {
+    val string = "escala[1.0, 1.0]( circulo[0 @ 5, 10]\n      )"
+    simplificador(parserEscala(string).get.elementoParseado) shouldBe Circulo(punto2D(0,5),10)
+
+  }
+
+  it should "traslacion de 0" in {
+    val string = "traslacion[0.0, 0.0](\n\t\tcirculo[0 @ 5, 10]\n)"
+    simplificador(parserTraslacion(string).get.elementoParseado) shouldBe Circulo(punto2D(0,5),10)
+  }
+
+  it should "nada raro simplificando" in {
+    val unString = " grupo(grupo( triangulo[250 @ 150, 150 @ 300, 350 @ 300],  triangulo[150 @ 300, 50 @ 450, 250 @ 450], triangulo[350 @ 300, 250 @ 450, 450 @ 450]  ),grupo(      rectangulo[460 @ 90, 470 @ 100], rectangulo[430 @ 210, 500 @ 220], rectangulo[430 @ 210, 440 @ 230], rectangulo[490 @ 210, 500 @ 230], rectangulo[450 @ 100, 480 @ 260] )) "
+    simplificador(parserGrupo (unString).get.elementoParseado) shouldBe Grupo(List(
+      Grupo(List(
+        Triangulo(punto2D(250, 150), punto2D(150, 300), punto2D(350, 300)),
+        Triangulo(punto2D(150, 300), punto2D(50, 450), punto2D(250, 450)),
+        Triangulo(punto2D(350, 300), punto2D(250, 450), punto2D(450, 450))
+      )),
+      Grupo(List(
+        Rectangulo(punto2D(460, 90), punto2D(470, 100)),
+        Rectangulo(punto2D(430, 210), punto2D(500, 220)),
+        Rectangulo(punto2D(430, 210), punto2D(440, 230)),
+        Rectangulo(punto2D(490, 210), punto2D(500, 230)),
+        Rectangulo(punto2D(450, 100), punto2D(480, 260))
+      ))
+    ))
   }
 
 //  it should "deberia retornar el string hola el <~" in {
