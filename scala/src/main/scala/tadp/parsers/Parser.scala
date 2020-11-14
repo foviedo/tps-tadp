@@ -1,5 +1,8 @@
 package tadp.parsers
 import scala.util.{Failure, Success, Try}
+import scalafx.scene.paint.Color
+import tadp.internal.TADPDrawingAdapter
+import tadp.TADPDrawingApp
 
 abstract class Parser[T] {
   def apply(entrada:String): Try[ResultadoParser[T]]
@@ -359,7 +362,41 @@ case object parserTraslacion extends Parser[Figura] {
 
 
 
+object dibujarFigura{
+  def apply(unaFigura:Figura): Unit = unaFigura match {
+    case Rectangulo(verticeSuperior,verticeInferior) =>  dibujarRectangulo (verticeInferior,verticeSuperior)
+    case Triangulo(verticePrimero,verticeSegundo,verticeTercero) => dibujarTriangulo (verticePrimero,verticeSegundo,verticeTercero)
+    case Circulo(centro,radio) => dibujarCirculo (centro,radio)
+    case _ => throw new FiguraInvalidaException
+  }
+}
 
+object dibujarRectangulo {
+  def apply(verticeSuperior: punto2D,verticeInferior: punto2D): Unit = {
+    TADPDrawingAdapter.
+      forScreen{ adapter=>
+        adapter.rectangle((verticeSuperior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
+      }
+  }
+}
+
+object dibujarTriangulo {
+  def apply(verticePrimero: punto2D,verticeSegundo: punto2D,verticeTercero: punto2D): Unit ={
+    TADPDrawingAdapter.
+      forScreen{ adapter =>
+        adapter.triangle((verticePrimero.x,verticePrimero.y),(verticeSegundo.x,verticeSegundo.y),(verticeTercero.x,verticeTercero.y))
+      }
+  }
+}
+
+object dibujarCirculo {
+  def apply(centro: punto2D,radio: Double): Unit ={
+    TADPDrawingAdapter
+      .forScreen{adapter=>
+        adapter.circle((centro.x,centro.y),radio)
+      }
+  }
+}
 
 trait Figura
 trait Transformacion
