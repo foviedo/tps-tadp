@@ -259,6 +259,11 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     parserColor(string) shouldBe Success(ResultadoParser(FiguraTransformada(Grupo(List(Triangulo(punto2D(200,50),punto2D(101,335),punto2D(299,335)),Circulo(punto2D(200,350),100))),Color(60,150,200)),""))
   }
 
+  it should "figura simple de doble color" in {
+    val string = "color[60.0, 150.0, 200.0](color[1.0,1.0,1.0](triangulo[0 @ 100, 200 @ 300, 150 @ 500]))"
+    simplificador(parserColor(string).get.elementoParseado) shouldBe FiguraTransformada(Triangulo(punto2D(0,100),punto2D(200,300),punto2D(150,500)),Color(1,1,1))
+  }
+
 //  it should "deberia retornar el string hola el <~" in {
 //    (string("hola") <~ string("mundo"))("holamundo") shouldBe Success(ResultadoParser("hola", ""))
 //  }
