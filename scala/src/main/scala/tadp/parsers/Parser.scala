@@ -424,12 +424,14 @@ object dibujarCirculo {
   }
 }
 
-//object dibujarGrupo {
-//  def apply(grupo: Grupo): Unit ={
-//    var bloque: TADPDrawingAdapter => Any = {a => a}
-//    TADPDrawingAdapter.forScreen {bloque}
-//  }
-//}
+object dibujarGrupo {
+  def apply(grupo: Grupo): TADPDrawingAdapter => TADPDrawingAdapter ={
+    val primero = grupo.elementos.head
+    //grupo.elementos.fold( figura => dibujarFigura(figura).compose(semilla))
+    grupo.elementos.fold(dibujarFigura(grupo.elementos.head)) compose
+  }
+}
+
 
 trait Figura
 trait Transformacion
