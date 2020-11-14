@@ -1,5 +1,8 @@
 package tadp.parsers
 import scala.util.{Failure, Success, Try}
+import scalafx.scene.paint.Color
+import tadp.internal.TADPDrawingAdapter
+import tadp.TADPDrawingApp
 
 abstract class Parser[T] {
   def apply(entrada:String): Try[ResultadoParser[T]]
@@ -205,7 +208,7 @@ class <>[T,S]{
       }
     }
   }
-} // Success(ResultadoParser((algoDeTipoT,algoDeTipo),loQueSobra))
+}
 
 class ~>[T,S]{
   def combinar(unParser:Parser[T],otroParser:Parser[S]):Parser[S] ={
@@ -237,7 +240,7 @@ class sepBy[T,S]{
         (parserDeContenido <> (parserSeparador ~> parserDeContenido).*()).map(tuplaConListaALista)(entrada)
 
       }
-      def tuplaConListaALista (tupla:(T,List[T])) ={
+      def tuplaConListaALista (tupla:(T,List[T])):List[T] ={
         tupla._1 :: tupla._2
       }
 
@@ -247,7 +250,7 @@ class sepBy[T,S]{
 
 class sepByn[T,S] {
   def combinar (parserDeContenido:Parser[T],parserSeparador:Parser[S], cantidadDeVeces: Int): Parser[List[T]] ={
-    return new Parser[List[T]] {
+    new Parser[List[T]] {
       override def apply(entrada: String): Try[ResultadoParser[List[T]]] = {
         (new sepBy).combinar(parserDeContenido,parserSeparador).satisfies(x => x.length == cantidadDeVeces)(entrada)
       }
@@ -260,19 +263,24 @@ class sepByn[T,S] {
 
 case class parserPuntos(cantidad:Int) extends Parser[List[punto2D]] {
   def apply(unString:String): Try[ResultadoParser[List[punto2D]]] = {
-    (char('[') ~> (integer.sepBy(string("@"))).sepByn(string(","),cantidad) <~ char(']')).map(x => listaDeListaDeIntAListaDeTupla(x))(unString)
+    (char('[') ~> parserPuntos <~ char(']')).map(x => listaDeListaDeIntAListaDeTupla(x))(unString)
   }
 
-  def listaDeListaDeIntAListaDeTupla (dobleLista : List[List[Int]]): List[punto2D] = {
-    dobleLista.map(listita => new punto2D(listita.apply(0),listita.apply(1)))
+  def parserPuntos: Parser[List[List[Int]]] = {
+    integer.sepBy(string("@")).sepByn(string(","), cantidad)
   }
+
+  def listaDeListaDeIntAListaDeTupla(dobleLista : List[List[Int]]): List[punto2D] = {
+    dobleLista.map(listita => punto2D(listita.apply(0),listita.apply(1)))
+  }
+
 }
 
 case object parserRectangulo extends Parser[Figura] {
   def apply(unString:String): Try[ResultadoParser[Figura]] ={
     Try{
       val rectanguloParseado = (string("rectangulo")   ~> parserPuntos(2))(limpiadorDeString(unString)).get
-      ResultadoParser(new Rectangulo((rectanguloParseado.elementoParseado.apply(0))
+      ResultadoParser(Rectangulo(rectanguloParseado.elementoParseado.apply(0)
         ,rectanguloParseado.elementoParseado.apply(1)),rectanguloParseado.loQueSobra)
     }
   }
@@ -283,60 +291,131 @@ case object parserTriangulo extends Parser[Figura] {
       Try{
         val trianguloParseado = (string("triangulo") ~> parserPuntos(3))(limpiadorDeString(unString)).get
         val trianguloConContenidoExtraido = trianguloParseado.elementoParseado
-        ResultadoParser(new Triangulo(trianguloConContenidoExtraido.apply(0)
-          ,trianguloConContenidoExtraido.apply(1)
-          ,trianguloConContenidoExtraido.apply(2)), trianguloParseado.loQueSobra)
+        ResultadoParser(Triangulo(trianguloConContenidoExtraido.apply(0)
+          , trianguloConContenidoExtraido.apply(1)
+          , trianguloConContenidoExtraido.apply(2)), trianguloParseado.loQueSobra)
       }
     } //TODO: Usar map
 }
+
+
 case object parserCirculo extends Parser[Figura]{
   def apply (unString:String):Try[ResultadoParser[Figura]] ={
-    Try {
-      val circuloParseado = (string("circulo")  ~> parserPuntos(2))(limpiadorDeString(unString).dropRight(1) + "@0]").get
-      ResultadoParser(new Circulo(circuloParseado.elementoParseado.apply(0),
-        circuloParseado.elementoParseado.apply(1).x),circuloParseado.loQueSobra)
-    }
-
+      val dobleListaACirculo: List[List[Int]] => Figura = elem => Circulo(punto2D(elem.apply(0).apply(0),elem.apply(0).apply(1)),elem.apply(1).apply(0))
+      ((string("circulo[") ~> parserPuntos(2).parserPuntos) <~ char(']')).map(dobleListaACirculo)(limpiadorDeString(unString))
   }
 }
-/*case object parserCirculo extends Parser[Circulo] {
-  def apply (unString:String):Try[ResultadoParser[Circulo]] ={
-    Try {
-      val circuloParseado = (((string("circulo")  ~> char('[')) ~> integer.sepBy(string("@")).sepBy(string(","))) <~ char(']'))(limpiadorDeString(unString)).get
-      ResultadoParser(Circulo((circuloParseado.elementoParseado.apply(0).apply(0),circuloParseado.elementoParseado.apply(0).apply(1)),
-        circuloParseado.elementoParseado.apply(1).apply(0)),circuloParseado.loQueSobra)
-    }
 
-  }
-}*/
 
-case class parserFigura() extends Parser[Figura] {
+
+
+case object parserGrupo extends Parser[Figura] {
   def apply(unString:String):Try[ResultadoParser[Figura]] = {
-    ((parserCirculo <|> parserRectangulo) <|> parserTriangulo) (unString)
+    val funcion: List[Figura] => Figura = {laLista => Grupo(laLista)}
+    ((string("grupo(") ~> parserFigura.sepBy(char(','))) <~ char(')')).map(funcion) (limpiadorDeString(unString))
+
+   // val rectanguloParseado = (((string("rectangulo")  ~> char('['))) ~> (integer.sepBy(string(" @ "))).sepBy(string(", ")).*()) <~ char(']')
+
   }
 }
 
-case class parserGrupo() extends Parser[Figura] {
+case object parserFigura extends Parser[Figura] {
   def apply(unString:String):Try[ResultadoParser[Figura]] = {
-    var listaParseada = (new parserFigura).sepBy(char(','))(limpiadorDeString(unString))
-    Try {
-      ResultadoParser(new Grupo(listaParseada.get.elementoParseado),listaParseada.get.loQueSobra)
-    }
+    (((parserCirculo <|> parserRectangulo) <|> parserTriangulo) <|> parserGrupo) (unString)
+  }
+}
+
+case class parserTransformacion(cantidad:Int, nombre:String, funcion:((List[Double], Figura)) => Figura) extends Parser[Figura] {
+  def apply(unString :String): Try[ResultadoParser[Figura]] = {
+    (((string(nombre) ~> char('[')) ~> double.sepByn(char(','),cantidad)  <~ string("](")) <> (parserFigura <~ char(')'))).map(funcion) (limpiadorDeString(unString))
+  }
+}
+
+case object parserColor extends Parser[Figura] {
+  def apply(unString:String): Try[ResultadoParser[Figura]] = {
+    val funcion: ((List[Double], Figura)) => Figura = tupla => FiguraTransformada(tupla._2,Color(tupla._1(0).toInt,tupla._1(1).toInt,tupla._1(2).toInt))
+    parserTransformacion(3,"color",funcion) (limpiadorDeString(unString))
+    //((string("color[") ~> double.sepByn(char(','),3)  <~ string("](")) <> parserFigura <~ char(')')).map(funcion) (limpiadorDeString(unString))
+  }
+}
+
+case object parserEscala extends Parser[Figura] {
+  def apply(unString:String): Try[ResultadoParser[Figura]] = {
+    val funcion: ((List[Double], Figura)) => Figura = tupla => FiguraTransformada(tupla._2,Escala(tupla._1(0),tupla._1(1)))
+    parserTransformacion(2,"escala",funcion) (limpiadorDeString(unString))
+  }
+}
+
+case object parserRotacion extends Parser[Figura] {
+  def apply(unString:String): Try[ResultadoParser[Figura]] = {
+    val funcion: ((List[Double], Figura)) => Figura = tupla => FiguraTransformada(tupla._2,Rotacion(tupla._1(0).toInt))
+    parserTransformacion(1,"rotacion",funcion) (limpiadorDeString(unString))
+  }
+}
+
+case object parserTraslacion extends Parser[Figura] {
+  def apply(unString:String): Try[ResultadoParser[Figura]] = {
+    val funcion: ((List[Double], Figura)) => Figura = tupla => FiguraTransformada(tupla._2,Traslacion(tupla._1(0),tupla._1(1)))
+    parserTransformacion(2,"traslacion",funcion) (limpiadorDeString(unString))
   }
 }
 
 
+
+object dibujarFigura{
+  def apply(unaFigura:Figura): Unit = unaFigura match {
+    case Rectangulo(verticeSuperior,verticeInferior) =>  dibujarRectangulo (verticeInferior,verticeSuperior)
+    case Triangulo(verticePrimero,verticeSegundo,verticeTercero) => dibujarTriangulo (verticePrimero,verticeSegundo,verticeTercero)
+    case Circulo(centro,radio) => dibujarCirculo (centro,radio)
+    case _ => throw new FiguraInvalidaException
+  }
+}
+
+object dibujarRectangulo {
+  def apply(verticeSuperior: punto2D,verticeInferior: punto2D): Unit = {
+    TADPDrawingAdapter.
+      forScreen{ adapter=>
+        adapter.rectangle((verticeSuperior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
+      }
+  }
+}
+
+object dibujarTriangulo {
+  def apply(verticePrimero: punto2D,verticeSegundo: punto2D,verticeTercero: punto2D): Unit ={
+    TADPDrawingAdapter.
+      forScreen{ adapter =>
+        adapter.triangle((verticePrimero.x,verticePrimero.y),(verticeSegundo.x,verticeSegundo.y),(verticeTercero.x,verticeTercero.y))
+      }
+  }
+}
+
+object dibujarCirculo {
+  def apply(centro: punto2D,radio: Double): Unit ={
+    TADPDrawingAdapter
+      .forScreen{adapter=>
+        adapter.circle((centro.x,centro.y),radio)
+      }
+  }
+}
 
 trait Figura
-//TODO: usar un trait que defina el supertipo o algo así
+trait Transformacion
 case class Triangulo(var verticePrimero: punto2D, var verticeSegundo: punto2D, var verticeTercero: punto2D) extends Figura
 case class Rectangulo(var verticeSuperior: punto2D,var verticeInferior: punto2D) extends Figura
 case class Circulo(var centro: punto2D,var radio : Double) extends Figura
 case class Grupo(var elementos: List[Figura]) extends Figura
-
+case class FiguraTransformada(var elemento: Figura, var transformacion: Transformacion ) extends Figura
+//case class FiguraColor(var elemento: Figura, var color:Color ) extends Figura
+//case class FiguraEscala(var elemento: Figura, var escala:Escala) extends Figura
+//case class FiguraRotacion(var elemento:Figura, var rotacion:Int) extends Figura
+//case class FiguraTraslacion(var elemento:Figura, var traslacion:Traslacion) extends Figura
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
 case class punto2D (x:Double, y:Double)
+case class Color(R:Int,G:Int,B:Int) extends Transformacion
+case class Escala(x:Double,y:Double) extends Transformacion
+case class Traslacion(x:Double,y:Double) extends Transformacion
+case class Rotacion(grados:Int) extends Transformacion
 //TODO hacer que los parser puedanusar for comprehension (ya implementamos map), tenemos que convertir Parser en una mónada
 
 //TODO inspirarse en la clase del microprocesador para el tema de los dibujos, mas que nada para lo de simplificar

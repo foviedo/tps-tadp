@@ -7,3 +7,4 @@ class StringException extends Exception
 class ConcatException extends Exception
 class MapException extends Exception
 class SatisfiesException extends Exception
+class FiguraInvalidaException extends Exception

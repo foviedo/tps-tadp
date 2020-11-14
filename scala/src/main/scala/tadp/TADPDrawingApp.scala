@@ -2,24 +2,34 @@ package tadp
 import tadp.parsers
 import scalafx.scene.paint.Color
 import tadp.internal.TADPDrawingAdapter
-import tadp.parsers.{parserRectangulo, parserTriangulo}
-
+import tadp.parsers.{dibujarFigura, dibujarRectangulo, parserCirculo, parserRectangulo, parserTriangulo}
 
 object TADPDrawingApp extends App {
-  val trianguloParseado = parserTriangulo("triangulo[0 @ 100, 100 @ 100, 50 @ 200]")
-  val triangulo = trianguloParseado.get.elementoParseado
-
-  val rectanguloParseado = parserRectangulo("rectangulo[0 @ 0, 100 @ 100]")
-  val rectangulo = rectanguloParseado.get.elementoParseado
 
 //  TADPDrawingAdapter.
 //    forScreen{ adapter=>
-//      adapter
-//        .beginColor(Color.rgb(100,100,100))
-//        .rectangle(rectangulo.verticeInferior,rectangulo.verticeSuperior)
-//        .triangle(triangulo.verticePrimero,triangulo.verticeSegundo,triangulo.verticeTercero)
-//
+//        adapter
+//        .beginColor(Color.Aqua)
+//        .rectangle((0,0),(100,100))
+//        .end()
+//        .beginColor(Color.Beige)
+//        .triangle((0,100),(50,200),(100,100))
+//        .end()
 //    }
+
+    val rectanguloParseado = parserRectangulo("rectangulo[200 @ 100, 0 @ 0]")
+    val rectangulo = rectanguloParseado.get.elementoParseado
+
+    val trianguloParseado = parserTriangulo("triangulo[0 @ 100, 200 @ 300, 150 @ 500]")
+    val triangulo = trianguloParseado.get.elementoParseado
+
+    val circuloParseado = parserCirculo("circulo[100 @ 100, 50]")
+    val circulo = circuloParseado.get.elementoParseado
+
+    dibujarFigura (rectangulo)
+    dibujarFigura (triangulo)
+    dibujarFigura (circulo)
+
 
 //  TADPDrawingAdapter.
 //    forScreen{ adapter=>
