@@ -426,7 +426,8 @@ object dibujarCirculo {
 //  def apply(grupo: Grupo): TADPDrawingAdapter => TADPDrawingAdapter ={
 //    val primero = grupo.elementos.head
 //    //grupo.elementos.fold( figura => dibujarFigura(figura).compose(semilla))
-//    grupo.elementos.fold(grupo.elementos.head) {unElemento => dibujarGrupo(unElemento)}
+//    val first = grupo.elementos.head.asInstanceOf[Grupo]
+//    grupo.elementos.fold(first) {unElemento => dibujarGrupo(unElemento.asInstanceOf[Grupo])}
 //  }
 //}
 
