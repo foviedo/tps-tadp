@@ -3,6 +3,8 @@ import scala.util.{Failure, Success, Try}
 import scalafx.scene.paint.Color
 import tadp.internal.TADPDrawingAdapter
 import tadp.TADPDrawingApp
+//import tadp.internal.{Operations, TADPDrawingAdapter, TADPDrawingScreen, TADPInteractiveDrawingScreen}
+//import tadp.parsers.dibujarCirculo.punto2D
 
 abstract class Parser[T] {
   def apply(entrada:String): Try[ResultadoParser[T]]
@@ -365,10 +367,10 @@ case object simplificador {
     val laFiguraGrupo:Grupo = unaFigura.asInstanceOf[Grupo]
     unaFigura match {
       case FiguraTransformada(FiguraTransformada(figura,Color(r1,g1,b1)),Color(_,_,_)) => simplificador(FiguraTransformada(figura,Color(r1,g1,b1)))
-      case Grupo(lista) if lista.forall(elem => elem match {
+     /* case Grupo(lista) if lista.forall(elem => elem match {
         case FiguraTransformada(figura, transformacion) if transformacion == laFiguraGrupo.elementos(0).asInstanceOf[FiguraTransformada].transformacion  => true
         case _ => false
-      }) => FiguraTransformada(Grupo(),Color())
+      }) => FiguraTransformada(Grupo(),Color())*/
       case figura => figura
     }
   }
@@ -383,34 +385,40 @@ object dibujarFigura{
     case Circulo(centro,radio) => dibujarCirculo (centro,radio)
     case _ => throw new FiguraInvalidaException
   }
-}
+} // parece estar bien
+
+//object dibujarPostaRectangulo {
+//  def apply(verticeSuperior: punto2D,verticeInferior: punto2D): Unit = {
+//    TADPDrawingAdapter.forScreen {adapter =>
+//      adapter.rectangle((verticeSuperior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
+//    }
+//  }
+//} queda comentado porque este dibuja posta, aunque no nos sirve. El resto son iguales que este básicamente.
 
 object dibujarRectangulo {
-  def apply(verticeSuperior: punto2D,verticeInferior: punto2D): Unit = {
-    TADPDrawingAdapter.
-      forScreen{ adapter=>
-        adapter.rectangle((verticeSuperior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
-      }
+  def apply(verticeSuperior: punto2D,verticeInferior: punto2D): TADPDrawingAdapter => Any = {
+    adapter => adapter.rectangle((verticeInferior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
   }
 }
 
 object dibujarTriangulo {
-  def apply(verticePrimero: punto2D,verticeSegundo: punto2D,verticeTercero: punto2D): Unit ={
-    TADPDrawingAdapter.
-      forScreen{ adapter =>
-        adapter.triangle((verticePrimero.x,verticePrimero.y),(verticeSegundo.x,verticeSegundo.y),(verticeTercero.x,verticeTercero.y))
-      }
+  def apply(verticePrimero: punto2D,verticeSegundo: punto2D,verticeTercero: punto2D): TADPDrawingAdapter => Any ={
+  adapter => adapter.triangle((verticePrimero.x,verticePrimero.y),(verticeSegundo.x,verticeSegundo.y),(verticeTercero.x,verticeTercero.y))
   }
 }
 
 object dibujarCirculo {
-  def apply(centro: punto2D,radio: Double): Unit ={
-    TADPDrawingAdapter
-      .forScreen{adapter=>
-        adapter.circle((centro.x,centro.y),radio)
-      }
+  def apply(centro: punto2D,radio: Double): TADPDrawingAdapter => Any ={
+    adapter => adapter.circle((centro.x, centro.y), radio)
   }
 }
+
+//object dibujarGrupo {
+//  def apply(grupo: Grupo): Unit ={
+//    var bloque: TADPDrawingAdapter => Any = {a => a}
+//    TADPDrawingAdapter.forScreen {bloque}
+//  }
+//}
 
 trait Figura
 trait Transformacion
