@@ -26,11 +26,21 @@ object TADPDrawingApp extends App {
     val triangulo2 = dibujarFigura(parserTriangulo("triangulo[150 @ 300, 50 @ 450, 250 @ 450]").get.elementoParseado)
     val triangulo3 = dibujarFigura(parserTriangulo("triangulo[350 @ 300, 250 @ 450, 450 @ 450]").get.elementoParseado)
  //   val funcion: String => Grupo = unString => parserGrupo(unString).get.elementoParseado.asInstanceOf[Grupo]
-    val grupensio = dibujarGrupo(parserGrupo("grupo(triangulo[200 @ 50, 101 @ 335, 299 @ 335],circulo[200 @ 350, 100])").get.elementoParseado.asInstanceOf[Grupo])
+   // val grupensio = dibujarGrupo(parserGrupo("grupo(triangulo[200 @ 50, 101 @ 335, 299 @ 335],circulo[200 @ 350, 100])").get.elementoParseado.asInstanceOf[Grupo])
 
     //TADPDrawingAdapter.forScreen(triangulo1.compose(triangulo2).compose(triangulo3))
 
-    TADPDrawingAdapter.forScreen(grupensio)
+      TADPDrawingAdapter.forScreen(triangulo1.compose(triangulo2.compose(triangulo3)))
+  //  TADPDrawingAdapter.forScreen(grupensio)
+
+
+//  object dibujarRectangulo {
+//    def apply(verticeSuperior: punto2D,verticeInferior: punto2D): TADPDrawingAdapter => TADPDrawingAdapter = {
+//      adapter => adapter.rectangle((verticeInferior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
+//    }
+//  }
+
+
 //  TADPDrawingAdapter.forScreen { adapter =>
 //    adapter.beginScale(1, 1)
 //      .beginColor(Color.rgb(0, 0, 0))
