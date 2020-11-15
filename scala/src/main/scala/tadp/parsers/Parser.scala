@@ -167,7 +167,6 @@ case object integer extends Parser[Int]{
   }
 
 }
-  //TODO: considerar implementar el flatmap
 case object double extends Parser[Double]{
   def apply(unDouble:String): Try[ResultadoParser[Double]]= {
     (((parserStringNoObligatorio("-") <> parserNumero) <> parserStringNoObligatorio(".")) <> parserNumero).map({case (((menos,parteEntera),punto),parteFrac) =>
@@ -433,13 +432,12 @@ object dibujarGrupo {
 
 trait Figura
 trait Transformacion
-case class Triangulo(var verticePrimero: punto2D, var verticeSegundo: punto2D, var verticeTercero: punto2D) extends Figura
-case class Rectangulo(var verticeSuperior: punto2D,var verticeInferior: punto2D) extends Figura
-case class Circulo(var centro: punto2D,var radio : Double) extends Figura
-case class Grupo(var elementos: List[Figura]) extends Figura
-case class FiguraTransformada(var elemento: Figura, var transformacion: Transformacion ) extends Figura
+case class Triangulo(verticePrimero: punto2D, verticeSegundo: punto2D, verticeTercero: punto2D) extends Figura
+case class Rectangulo(verticeSuperior: punto2D,verticeInferior: punto2D) extends Figura
+case class Circulo(centro: punto2D,radio : Double) extends Figura
+case class Grupo(elementos: List[Figura]) extends Figura
+case class FiguraTransformada(elemento: Figura,transformacion: Transformacion ) extends Figura
 
-//TODO: cambiar var a val
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
 case class punto2D (x:Double, y:Double)
 case class Color(R:Int,G:Int,B:Int) extends Transformacion
