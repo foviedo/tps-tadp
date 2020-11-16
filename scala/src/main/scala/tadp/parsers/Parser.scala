@@ -356,13 +356,14 @@ case object parserTraslacion extends Parser[Figura] {
 case object simplificador {
   def apply(unaFigura: Figura): Figura = {
   //  val laFiguraGrupo:Grupo = unaFigura.asInstanceOf[Grupo]
-  //  val funcion: FiguraTransformada => Figura = elem => elem.elemento
+    val funcion: Figura => Figura = {case FiguraTransformada(elemento,transformacion) => elemento}
+    val funcionParcial: PartialFunction[Figura,FiguraTransformada] = {case FiguraTransformada(figura,transformacion) => FiguraTransformada(figura,transformacion)}
     unaFigura match {
       case FiguraTransformada(FiguraTransformada(figura,Color(r1,g1,b1)),Color(_,_,_)) => simplificador(FiguraTransformada(figura,Color(r1,g1,b1)))
-   /*   case Grupo(lista) if lista.forall(elem => elem match {
-        case FiguraTransformada(figura, transformacion) if transformacion == laFiguraGrupo.elementos(0).asInstanceOf[FiguraTransformada].transformacion  => true
+      case Grupo(lista) if lista.forall(elem => elem match {
+        case FiguraTransformada(_, transformacion) if transformacion == lista.collect(funcionParcial)(0).transformacion  => true
         case _ => false
-      }) => FiguraTransformada(Grupo(laFiguraGrupo.elementos.map(funcion)),laFiguraGrupo.elementos(0).asInstanceOf[FiguraTransformada].transformacion)*/
+      }) => FiguraTransformada(Grupo(lista.map(funcion)),lista.collect(funcionParcial)(0).transformacion)
       //TODO: tal vez pueda usar collect? Es un map que recibe una funcion parcial. Filtra la lista para dejarme solamente las que matchearon con el pattern matching
       //TODO: Una primer version que use casteos... pero que funcione
       case FiguraTransformada(FiguraTransformada(figura,Rotacion(grados1)),Rotacion(grados2)) => simplificador(FiguraTransformada(figura,Rotacion(grados1+grados2)))
