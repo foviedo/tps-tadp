@@ -1,6 +1,5 @@
 package tadp.parsers
 import scala.util.{Failure, Success, Try}
-import scalafx.scene.paint.Color
 import tadp.internal.TADPDrawingAdapter
 import tadp.{TADPDrawingApp, internal}
 //import tadp.internal.{Operations, TADPDrawingAdapter, TADPDrawingScreen, TADPInteractiveDrawingScreen}
@@ -145,7 +144,7 @@ case class string(inicio: String) extends Parser[String]{
     if(stringOriginal.startsWith(inicio)) Success(ResultadoParser[String](inicio,stringOriginal.slice(inicio.length(),stringOriginal.length()))) else Failure(new StringException)
 }
 
-case class parserSigno(elSigno: String) extends Parser[String]{
+case class parserStringNoObligatorio(elSigno: String) extends Parser[String]{
   def apply(inicio: String): Try[ResultadoParser[String]] = {
     string(elSigno)(inicio) match {
       case Success(elem) => Success(elem)
@@ -163,16 +162,15 @@ case object parserNumero extends Parser[String]{
 
 case object integer extends Parser[Int]{
   def apply(entero:String): Try[ResultadoParser[Int]]={
-       (parserSigno("-") <> parserNumero).map(tupla => (tupla._1 + tupla._2).toInt).apply(entero)
+       (parserStringNoObligatorio("-") <> parserNumero).map(tupla => (tupla._1 + tupla._2).toInt).apply(entero)
 
   }
 
 }
-
 case object double extends Parser[Double]{
   def apply(unDouble:String): Try[ResultadoParser[Double]]= {
-    (((parserSigno("-") <> parserNumero) <> parserSigno(".")) <> parserNumero).map(tuplas =>
-      (tuplas._1._1._1+tuplas._1._1._2 + tuplas._1._2 + tuplas._2).toDouble)(unDouble)
+    (((parserStringNoObligatorio("-") <> parserNumero) <> parserStringNoObligatorio(".")) <> parserNumero).map({case (((menos,parteEntera),punto),parteFrac) =>
+      (menos+parteEntera + punto + parteFrac).toDouble})(unDouble)
   }
 
 }
@@ -217,7 +215,6 @@ class ~>[T,S]{
     new Parser[S] {
       override def apply(entrada:String): Try[ResultadoParser[S]] = {
         (unParser <> otroParser).map(elem => elem._2) (entrada)
-
       }
     }
   }
@@ -265,10 +262,10 @@ class sepByn[T,S] {
 
 case class parserPuntos(cantidad:Int) extends Parser[List[punto2D]] {
   def apply(unString:String): Try[ResultadoParser[List[punto2D]]] = {
-    (char('[') ~> parserPuntos <~ char(']')).map(x => listaDeListaDeIntAListaDeTupla(x))(unString)
+    (char('[') ~> parsearPuntos <~ char(']')).map(x => listaDeListaDeIntAListaDeTupla(x))(unString)
   }
 
-  def parserPuntos: Parser[List[List[Int]]] = {
+  def parsearPuntos: Parser[List[List[Int]]] = {
     integer.sepBy(string("@")).sepByn(string(","), cantidad)
   }
 
@@ -280,31 +277,23 @@ case class parserPuntos(cantidad:Int) extends Parser[List[punto2D]] {
 
 case object parserRectangulo extends Parser[Figura] {
   def apply(unString:String): Try[ResultadoParser[Figura]] ={
-    Try{
-      val rectanguloParseado = (string("rectangulo")   ~> parserPuntos(2))(limpiadorDeString(unString)).get
-      ResultadoParser(Rectangulo(rectanguloParseado.elementoParseado.apply(0)
-        ,rectanguloParseado.elementoParseado.apply(1)),rectanguloParseado.loQueSobra)
-    }
+    val funcion: List[punto2D] => Figura = {case (List(supIzq,infDer)) =>Rectangulo(supIzq,infDer) }
+      (string("rectangulo")  ~> parserPuntos(2)).map(funcion) (limpiadorDeString(unString))
   }
 }
 
 case object parserTriangulo extends Parser[Figura] {
     def apply(unString:String): Try[ResultadoParser[Figura]] ={
-      Try{
-        val trianguloParseado = (string("triangulo") ~> parserPuntos(3))(limpiadorDeString(unString)).get
-        val trianguloConContenidoExtraido = trianguloParseado.elementoParseado
-        ResultadoParser(Triangulo(trianguloConContenidoExtraido.apply(0)
-          , trianguloConContenidoExtraido.apply(1)
-          , trianguloConContenidoExtraido.apply(2)), trianguloParseado.loQueSobra)
-      }
-    } //TODO: Usar map
+      val funcion: List[punto2D] => Figura = {case (List(a,b,c)) =>Triangulo(a,b,c) }
+      (string("triangulo") ~> parserPuntos(3)).map(funcion) (limpiadorDeString(unString))
+    }
 }
 
 
 case object parserCirculo extends Parser[Figura]{
   def apply (unString:String):Try[ResultadoParser[Figura]] ={
-      val dobleListaACirculo: List[List[Int]] => Figura = elem => Circulo(punto2D(elem.apply(0).apply(0),elem.apply(0).apply(1)),elem.apply(1).apply(0))
-      ((string("circulo[") ~> parserPuntos(2).parserPuntos) <~ char(']')).map(dobleListaACirculo)(limpiadorDeString(unString))
+      val dobleListaACirculo: List[List[Int]] => Figura ={ case List(List(x,y),List(r)) => Circulo(punto2D(x,y),r)}
+      ((string("circulo[") ~> parserPuntos(2).parsearPuntos) <~ char(']')).map(dobleListaACirculo)(limpiadorDeString(unString))
   }
 }
 
@@ -316,14 +305,18 @@ case object parserGrupo extends Parser[Figura] {
     val funcion: List[Figura] => Figura = {laLista => Grupo(laLista)}
     ((string("grupo(") ~> parserFigura.sepBy(char(','))) <~ char(')')).map(funcion) (limpiadorDeString(unString))
 
-   // val rectanguloParseado = (((string("rectangulo")  ~> char('['))) ~> (integer.sepBy(string(" @ "))).sepBy(string(", ")).*()) <~ char(']')
-
   }
 }
 
 case object parserFigura extends Parser[Figura] {
   def apply(unString:String):Try[ResultadoParser[Figura]] = {
-    (parserCirculo <|> parserRectangulo <|> parserTriangulo <|> parserGrupo <|> parserColor <|> parserEscala <|> parserRotacion <|> parserTraslacion) (unString)
+    (parsearFiguras <|> parserGrupo <|> parsearTransformaciones) (unString)
+  }
+  private def parsearFiguras = {
+    parserCirculo <|> parserRectangulo <|> parserTriangulo
+  }
+  private def parsearTransformaciones = {
+    parserColor <|> parserEscala <|> parserRotacion <|> parserTraslacion
   }
 }
 
@@ -335,55 +328,57 @@ case class parserTransformacion(cantidad:Int, nombre:String, funcion:((List[Doub
 
 case object parserColor extends Parser[Figura] {
   def apply(unString:String): Try[ResultadoParser[Figura]] = {
-    val funcion: ((List[Double], Figura)) => Figura = tupla => FiguraTransformada(tupla._2,Color(tupla._1(0).toInt,tupla._1(1).toInt,tupla._1(2).toInt))
-    parserTransformacion(3,"color",funcion) (limpiadorDeString(unString))
-    //((string("color[") ~> double.sepByn(char(','),3)  <~ string("](")) <> parserFigura <~ char(')')).map(funcion) (limpiadorDeString(unString))
+    val funcion: ((List[Double], Figura)) => Figura = {case (List(r,g,b),figura) => FiguraTransformada(figura,Color(r.toInt,g.toInt,b.toInt))}
+    parserTransformacion(3,"color",funcion) (unString)
   }
 }
 
 case object parserEscala extends Parser[Figura] {
   def apply(unString:String): Try[ResultadoParser[Figura]] = {
-    val funcion: ((List[Double], Figura)) => Figura = tupla => FiguraTransformada(tupla._2,Escala(tupla._1(0),tupla._1(1)))
-    parserTransformacion(2,"escala",funcion) (limpiadorDeString(unString))
+    val funcion: ((List[Double], Figura)) => Figura = {case (List(x,y),figura) => FiguraTransformada(figura,Escala(x,y))}
+    parserTransformacion(2,"escala",funcion) (unString)
   }
 }
 
 case object parserRotacion extends Parser[Figura] {
   def apply(unString:String): Try[ResultadoParser[Figura]] = {
-    val funcion: ((List[Double], Figura)) => Figura = tupla => FiguraTransformada(tupla._2,Rotacion(tupla._1(0).toInt))
-    parserTransformacion(1,"rotacion",funcion) (limpiadorDeString(unString))
+    val funcion: ((List[Double], Figura)) => Figura = {case (List(angulo),figura) => FiguraTransformada(figura,Rotacion(angulo.toInt))}
+    parserTransformacion(1,"rotacion",funcion) (unString)
   }
 }
 
 case object parserTraslacion extends Parser[Figura] {
   def apply(unString:String): Try[ResultadoParser[Figura]] = {
-    val funcion: ((List[Double], Figura)) => Figura = tupla => FiguraTransformada(tupla._2,Traslacion(tupla._1(0),tupla._1(1)))
-    parserTransformacion(2,"traslacion",funcion) (limpiadorDeString(unString))
+    val funcion: ((List[Double], Figura)) => Figura = {case (List(x,y),figura) => FiguraTransformada(figura,Traslacion(x,y))}
+    parserTransformacion(2,"traslacion",funcion) (unString)
   }
 }
-
 case object simplificador {
   def apply(unaFigura: Figura): Figura = {
-   // val laFiguraGrupo:Grupo = unaFigura.asInstanceOf[Grupo]
-   // val funcion: FiguraTransformada => Figura = elem => elem.elemento
+  //  val laFiguraGrupo:Grupo = unaFigura.asInstanceOf[Grupo]
+    val funcion: Figura => Figura = {case FiguraTransformada(elemento,transformacion) => elemento}
+    val funcionParcial: PartialFunction[Figura,FiguraTransformada] = {case FiguraTransformada(figura,transformacion) => FiguraTransformada(figura,transformacion)}
     unaFigura match {
       case FiguraTransformada(FiguraTransformada(figura,Color(r1,g1,b1)),Color(_,_,_)) => simplificador(FiguraTransformada(figura,Color(r1,g1,b1)))
-      /*case Grupo(lista) if lista.forall(elem => elem match {
-        case FiguraTransformada(figura, transformacion) if transformacion == laFiguraGrupo.elementos(0).asInstanceOf[FiguraTransformada].transformacion  => true
+      case Grupo(lista) if lista.forall(elem => elem match {
+        case FiguraTransformada(_, transformacion) if transformacion == lista.collect(funcionParcial)(0).transformacion  => true
         case _ => false
-      }) => FiguraTransformada(Grupo(laFiguraGrupo.elementos.map(funcion)),laFiguraGrupo.elementos(0).asInstanceOf[FiguraTransformada].transformacion)*/
+      }) => FiguraTransformada(Grupo(lista.map(funcion)),lista.collect(funcionParcial)(0).transformacion)
+      //TODO: tal vez pueda usar collect? Es un map que recibe una funcion parcial. Filtra la lista para dejarme solamente las que matchearon con el pattern matching
+      //TODO: Una primer version que use casteos... pero que funcione
       case FiguraTransformada(FiguraTransformada(figura,Rotacion(grados1)),Rotacion(grados2)) => simplificador(FiguraTransformada(figura,Rotacion(grados1+grados2)))
       case FiguraTransformada(FiguraTransformada(figura, Escala(x1,y1)),Escala(x2,y2)) => simplificador(FiguraTransformada(figura,Escala(x1*x2,y1*y2)))
       case FiguraTransformada(FiguraTransformada(figura,Traslacion(x1,y1)),Traslacion(x2,y2)) => simplificador(FiguraTransformada(figura,Traslacion(x1+x2,y1+y2)))
-      case FiguraTransformada(figura,Rotacion(0)) => simplificador(figura)
-      case FiguraTransformada(figura,Escala(1.0,1.0)) => simplificador(figura)
-      case FiguraTransformada(figura,Traslacion(0,0)) => simplificador(figura)
+      case FiguraTransformada(figura,Rotacion(0) |Escala(1.0, 1.0) | Traslacion(0,0)) => simplificador(figura)
+      //case FiguraTransformada(figura,Escala(1.0,1.0)) => simplificador(figura)
+      //case FiguraTransformada(figura,Traslacion(0,0)) => simplificador(figura)
       case FiguraTransformada(figura, transformacion) => FiguraTransformada(simplificador(figura),transformacion)
       case Grupo(elementos) => Grupo(elementos.map(unaFigura => simplificador(unaFigura)))
       case figura => figura
     }
-  }
-}
+  } //TODO: checkeo de errores
+} // Color que envuelve a una rotacion de 0 que envuelve a otro color y eso que envuelve a un rectangulo
+//TODO: hay que pegarle mas de una pasada, cuando vuelo algo que está en el medio, tengo que checkear los de en medio
 
 
 /*DIBUJAR FIGURA
@@ -395,7 +390,7 @@ object dibujarFigura{
     case Triangulo(verticePrimero,verticeSegundo,verticeTercero) => dibujarTriangulo (verticePrimero,verticeSegundo,verticeTercero)
     case Circulo(centro,radio) => dibujarCirculo (centro,radio)
     case _ => throw new FiguraInvalidaException
-  }
+  } //TODO: ver de agregar el adapter en la firma del apply
 } // parece estar bien
 
 object dibujarRectangulo {
@@ -417,6 +412,7 @@ object dibujarCirculo {
     adapter => adapter.circle((centro.x, centro.y), radio)
   }
 }
+
 
 /*DIBUJAR FIGURA2
 -----------------------------------------------------------------------
@@ -494,28 +490,18 @@ object dibujarGrupo2{
 //  }
 //}
 
+
 //fold (a->b->a)->a->b->a
 //fold dibujarFigura.compose() ->
 //a: adapter => adapter
 
-
-
-object dibujarGrupo {
-  ???
-}
-
-
 trait Figura
 trait Transformacion
-case class Triangulo(var verticePrimero: punto2D, var verticeSegundo: punto2D, var verticeTercero: punto2D) extends Figura
-case class Rectangulo(var verticeSuperior: punto2D,var verticeInferior: punto2D) extends Figura
-case class Circulo(var centro: punto2D,var radio : Double) extends Figura
-case class Grupo(var elementos: List[Figura]) extends Figura
-case class FiguraTransformada(var elemento: Figura, var transformacion: Transformacion ) extends Figura
-//case class FiguraColor(var elemento: Figura, var color:Color ) extends Figura
-//case class FiguraEscala(var elemento: Figura, var escala:Escala) extends Figura
-//case class FiguraRotacion(var elemento:Figura, var rotacion:Int) extends Figura
-//case class FiguraTraslacion(var elemento:Figura, var traslacion:Traslacion) extends Figura
+case class Triangulo(verticePrimero: punto2D, verticeSegundo: punto2D, verticeTercero: punto2D) extends Figura
+case class Rectangulo(verticeSuperior: punto2D,verticeInferior: punto2D) extends Figura
+case class Circulo(centro: punto2D,radio : Double) extends Figura
+case class Grupo(elementos: List[Figura]) extends Figura
+case class FiguraTransformada(elemento: Figura,transformacion: Transformacion ) extends Figura
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
 case class punto2D (x:Double, y:Double)
@@ -526,4 +512,3 @@ case class Traslacion(x:Double,y:Double) extends Transformacion
 case class Rotacion(grados:Int) extends Transformacion
 //TODO hacer que los parser puedanusar for comprehension (ya implementamos map), tenemos que convertir Parser en una mónada
 
-//TODO inspirarse en la clase del microprocesador para el tema de los dibujos, mas que nada para lo de simplificar
