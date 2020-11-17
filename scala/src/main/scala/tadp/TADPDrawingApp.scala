@@ -2,7 +2,7 @@ package tadp
 import tadp.parsers
 import scalafx.scene.paint.Color
 import tadp.internal.TADPDrawingAdapter
-import tadp.parsers.{Grupo, dibujarFigura, dibujarGrupo, dibujarRectangulo, parserCirculo, parserGrupo, parserRectangulo, parserTriangulo}
+import tadp.parsers.{Grupo, dibujarFigura, dibujarFigura2, dibujarGrupo, dibujarGrupo2, dibujarRectangulo, parserCirculo, parserGrupo, parserRectangulo, parserTriangulo}
 
 object TADPDrawingApp extends App {
 
@@ -20,17 +20,19 @@ object TADPDrawingApp extends App {
 //    triangulo[250 @ 150, 150 @ 300, 350 @ 300],
   //  triangulo[150 @ 300, 50 @ 450, 250 @ 450],
     //triangulo[350 @ 300, 250 @ 450, 450 @ 450]
-
-
+    val triangulo = parserTriangulo("triangulo[250 @ 150, 150 @ 300, 350 @ 300]").get.elementoParseado
     val triangulo1 = dibujarFigura(parserTriangulo("triangulo[250 @ 150, 150 @ 300, 350 @ 300]").get.elementoParseado)
     val triangulo2 = dibujarFigura(parserTriangulo("triangulo[150 @ 300, 50 @ 450, 250 @ 450]").get.elementoParseado)
     val triangulo3 = dibujarFigura(parserTriangulo("triangulo[350 @ 300, 250 @ 450, 450 @ 450]").get.elementoParseado)
  //   val funcion: String => Grupo = unString => parserGrupo(unString).get.elementoParseado.asInstanceOf[Grupo]
-   // val grupensio = dibujarGrupo(parserGrupo("grupo(triangulo[200 @ 50, 101 @ 335, 299 @ 335],circulo[200 @ 350, 100])").get.elementoParseado.asInstanceOf[Grupo])
+   val grupo = parserGrupo("grupo(triangulo[200 @ 50, 101 @ 335, 299 @ 335],circulo[200 @ 350, 100])").get.elementoParseado.asInstanceOf[Grupo]
 
+
+
+  TADPDrawingAdapter.forScreen({adapter => dibujarGrupo2(grupo,adapter)})
     //TADPDrawingAdapter.forScreen(triangulo1.compose(triangulo2).compose(triangulo3))
 
-      TADPDrawingAdapter.forScreen(triangulo1.compose(triangulo2.compose(triangulo3)))
+//      TADPDrawingAdapter.forScreen({adapter => dibujarFigura2(triangulo,adapter)})
   //  TADPDrawingAdapter.forScreen(grupensio)
 
 
@@ -39,8 +41,6 @@ object TADPDrawingApp extends App {
 //      adapter => adapter.rectangle((verticeInferior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
 //    }
 //  }
-
-
 //  TADPDrawingAdapter.forScreen { adapter =>
 //    adapter.beginScale(1, 1)
 //      .beginColor(Color.rgb(0, 0, 0))
