@@ -27,13 +27,12 @@ object TADPDrawingApp extends App {
  //   val funcion: String => Grupo = unString => parserGrupo(unString).get.elementoParseado.asInstanceOf[Grupo]
    val grupo = parserGrupo("grupo(triangulo[200 @ 50, 101 @ 335, 299 @ 335],circulo[200 @ 350, 100])").get.elementoParseado.asInstanceOf[Grupo]
 
-  val grupoDibujable = dibujarGrupo2(grupo)
 
-  val figuraDibujada = dibujarFigura2(triangulo,TADPDrawingAdapter)
 
+  TADPDrawingAdapter.forScreen({adapter => dibujarGrupo2(grupo,adapter)})
     //TADPDrawingAdapter.forScreen(triangulo1.compose(triangulo2).compose(triangulo3))
 
-      TADPDrawingAdapter.forScreen(grupoDibujable)
+//      TADPDrawingAdapter.forScreen({adapter => dibujarFigura2(triangulo,adapter)})
   //  TADPDrawingAdapter.forScreen(grupensio)
 
 
@@ -42,11 +41,6 @@ object TADPDrawingApp extends App {
 //      adapter => adapter.rectangle((verticeInferior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
 //    }
 //  }
-
-TADPDrawingAdapter.forScreen
-  {
-    adapter => adapter.circle((2,3),5)
-  }
 //  TADPDrawingAdapter.forScreen { adapter =>
 //    adapter.beginScale(1, 1)
 //      .beginColor(Color.rgb(0, 0, 0))
