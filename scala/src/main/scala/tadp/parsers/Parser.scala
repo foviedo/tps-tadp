@@ -364,8 +364,6 @@ case object simplificador {
         case FiguraTransformada(_, transformacion) if transformacion == lista.collect(funcionParcial)(0).transformacion  => true
         case _ => false
       }) => FiguraTransformada(Grupo(lista.map(funcion)),lista.collect(funcionParcial)(0).transformacion)
-      //TODO: tal vez pueda usar collect? Es un map que recibe una funcion parcial. Filtra la lista para dejarme solamente las que matchearon con el pattern matching
-      //TODO: Una primer version que use casteos... pero que funcione
       case FiguraTransformada(FiguraTransformada(figura,Rotacion(grados1)),Rotacion(grados2)) => simplificador(FiguraTransformada(figura,Rotacion(grados1+grados2)))
       case FiguraTransformada(FiguraTransformada(figura, Escala(x1,y1)),Escala(x2,y2)) => simplificador(FiguraTransformada(figura,Escala(x1*x2,y1*y2)))
       case FiguraTransformada(FiguraTransformada(figura,Traslacion(x1,y1)),Traslacion(x2,y2)) => simplificador(FiguraTransformada(figura,Traslacion(x1+x2,y1+y2)))
@@ -377,7 +375,7 @@ case object simplificador {
       case figura => figura
     }
   } //TODO: checkeo de errores
-} // Color que envuelve a una rotacion de 0 que envuelve a otro color y eso que envuelve a un rectangulo
+} // Color que envuelve a una rotacion de 0 que envuelve a otro cogit lor y eso que envuelve a un rectangulo
 //TODO: hay que pegarle mas de una pasada, cuando vuelo algo que está en el medio, tengo que checkear los de en medio
 
 object dibujarFigura{
