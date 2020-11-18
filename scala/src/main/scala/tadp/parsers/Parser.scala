@@ -1,7 +1,7 @@
 package tadp.parsers
 import scala.util.{Failure, Success, Try}
 import tadp.internal.TADPDrawingAdapter
-import tadp.TADPDrawingApp
+import tadp.{TADPDrawingApp, internal}
 //import tadp.internal.{Operations, TADPDrawingAdapter, TADPDrawingScreen, TADPInteractiveDrawingScreen}
 //import tadp.parsers.dibujarCirculo.punto2D
 
@@ -378,56 +378,46 @@ case object simplificador {
 } // Color que envuelve a una rotacion de 0 que envuelve a otro cogit lor y eso que envuelve a un rectangulo
 //TODO: hay que pegarle mas de una pasada, cuando vuelo algo que está en el medio, tengo que checkear los de en medio
 
-object dibujarFigura{
-  def apply(unaFigura:Figura): TADPDrawingAdapter => TADPDrawingAdapter = unaFigura match {
-    case Rectangulo(verticeSuperior,verticeInferior) =>  dibujarRectangulo (verticeInferior,verticeSuperior)
-    case Triangulo(verticePrimero,verticeSegundo,verticeTercero) => dibujarTriangulo (verticePrimero,verticeSegundo,verticeTercero)
-    case Circulo(centro,radio) => dibujarCirculo (centro,radio)
+object dibujarFigura {
+  def apply(unaFigura:Figura,adapter:TADPDrawingAdapter):TADPDrawingAdapter = unaFigura match {
+    case Rectangulo(verticeSuperior,verticeInferior) => dibujarRectangulo(Rectangulo(verticeSuperior, verticeInferior),adapter)
+    case Triangulo(verticePrimero,verticeSegundo,verticeTercero) => dibujarTriangulo(Triangulo(verticePrimero,verticeSegundo,verticeTercero),adapter)
+    case Circulo(centro,radio) => dibujarCirculo(Circulo(centro,radio),adapter)
+    case Grupo(elementos) => dibujarGrupo(Grupo(elementos),adapter)
     case _ => throw new FiguraInvalidaException
-  } //TODO: ver de agregar el adapter en la firma del apply
-} // parece estar bien
-
-//object dibujarPostaRectangulo {
-//  def apply(verticeSuperior: punto2D,verticeInferior: punto2D): Unit = {
-//    TADPDrawingAdapter.forScreen {adapter =>
-//      adapter.rectangle((verticeSuperior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
-//    }
-//  }
-//} queda comentado porque este dibuja posta, aunque no nos sirve. El resto son iguales que este básicamente.
+  }
+}
 
 object dibujarRectangulo {
-  def apply(verticeSuperior: punto2D,verticeInferior: punto2D): TADPDrawingAdapter => TADPDrawingAdapter = {
-    adapter => adapter.rectangle((verticeInferior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
+  def apply(rectangulo:Rectangulo,adapter:TADPDrawingAdapter): TADPDrawingAdapter = {
+    val verticeSuperior = rectangulo.verticeSuperior
+    val verticeInferior = rectangulo.verticeInferior
+    adapter.rectangle((verticeSuperior.x,verticeSuperior.y),(verticeInferior.x,verticeInferior.y))
   }
 }
 
 object dibujarTriangulo {
-  def apply(verticePrimero: punto2D,verticeSegundo: punto2D,verticeTercero: punto2D): TADPDrawingAdapter => TADPDrawingAdapter ={
-       // val triangulo: TADPDrawingAdapter = new TADPDrawingAdapter().triangle()
-
-  adapter => adapter.triangle((verticePrimero.x,verticePrimero.y),(verticeSegundo.x,verticeSegundo.y),(verticeTercero.x,verticeTercero.y))
+  def apply(triangulo: Triangulo,adapter:TADPDrawingAdapter): TADPDrawingAdapter = {
+    val verticePrimero = triangulo.verticePrimero
+    val verticeSegundo = triangulo.verticeSegundo
+    val verticeTercero = triangulo.verticeTercero
+    adapter.triangle((verticePrimero.x,verticePrimero.y),(verticeSegundo.x,verticeSegundo.y),(verticeTercero.x,verticeTercero.y))
   }
 }
 
-object dibujarCirculo {
-  def apply(centro: punto2D,radio: Double): TADPDrawingAdapter => TADPDrawingAdapter ={
-    adapter => adapter.circle((centro.x, centro.y), radio)
+object dibujarCirculo{
+  def apply(circulo: Circulo, adapter: TADPDrawingAdapter): TADPDrawingAdapter = {
+    val centro = circulo.centro
+    val radio = circulo.radio
+    adapter.circle((centro.x,centro.y),radio)
   }
 }
 
-/*object dibujarGrupo {
-  def apply(grupo: Grupo): TADPDrawingAdapter => TADPDrawingAdapter ={
-    val primero = grupo.elementos.head
-    //grupo.elementos.fold( figura => dibujarFigura(figura).compose(semilla))
-    val first = grupo.elementos.head.asInstanceOf[Grupo]
-    grupo.elementos.fold(first) {unElemento => dibujarGrupo(unElemento.asInstanceOf[Grupo])}
-  } // fold: (A->B->B) -> B -> [A] -> B
-}*/ //la lista y la semilla pueden ser de diferente tipo
-
-object dibujarGrupo {
-  ???
+object dibujarGrupo{
+  def apply(grupo:Grupo,adapter:TADPDrawingAdapter): TADPDrawingAdapter = {
+    grupo.elementos.foldLeft(adapter) {(unAdapter,unaFigura) => dibujarFigura(unaFigura,unAdapter)}
+  }
 }
-
 
 trait Figura
 trait Transformacion
@@ -439,6 +429,7 @@ case class FiguraTransformada(elemento: Figura,transformacion: Transformacion ) 
 
 case class ResultadoParser[T](elementoParseado: T, loQueSobra: String)
 case class punto2D (x:Double, y:Double)
+
 case class Color(R:Int,G:Int,B:Int) extends Transformacion
 case class Escala(x:Double,y:Double) extends Transformacion
 case class Traslacion(x:Double,y:Double) extends Transformacion

@@ -294,11 +294,6 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     val rectanguloParseado = parserRectangulo("rectangulo[0 @ 100, 200 @ 300]")
     val rectangulo = rectanguloParseado.get.elementoParseado
 
-
-    val figurita = dibujarFigura(circulo)
-    val otraFigurita = dibujarFigura(triangulo)
-    val terceraFigurita = dibujarFigura(rectangulo)
-
  //este test es solo para instanciar objetos y ver cómo tipan.
   }
 //  ███████╗██╗███╗   ███╗██████╗ ██╗     ██╗███████╗██╗ ██████╗ █████╗ ██████╗  ██████╗ ██████╗
