@@ -261,6 +261,10 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     parserColor(string) shouldBe Success(ResultadoParser(FiguraTransformada(Grupo(List(Triangulo(punto2D(200,50),punto2D(101,335),punto2D(299,335)),Circulo(punto2D(200,350),100))),Color(60,150,200)),""))
   }
 
+  it should "parser de color invalido" in {
+    val string = "color[256.0, 150.0, 200.0](\n    grupo(\n   \t triangulo[200 @ 50, 101 @ 335, 299 @ 335],\n   \t circulo[200 @ 350, 100]\n    )\n)"
+    parserColor(string).failure.exception shouldBe a [ColorInvalidoException]
+  }
 
 
     it should "parser de escala" in {
@@ -272,6 +276,13 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
 
   it should "parser de rotacion" in {
     val string = """rotacion[45.0](
+                   |	rectangulo[300 @ 0, 500 @ 200]
+                   |)""".stripMargin
+    parserRotacion(string) shouldBe Success(ResultadoParser(FiguraTransformada(Rectangulo(punto2D(300, 0), punto2D(500, 200)), Rotacion(45)), ""))
+  }
+
+  it should "parser de rotacion que se pasa" in {
+    val string = """rotacion[405.0](
                    |	rectangulo[300 @ 0, 500 @ 200]
                    |)""".stripMargin
     parserRotacion(string) shouldBe Success(ResultadoParser(FiguraTransformada(Rectangulo(punto2D(300, 0), punto2D(500, 200)), Rotacion(45)), ""))
@@ -324,6 +335,11 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     simplificador(parserRotacion(string).get.elementoParseado) shouldBe FiguraTransformada(Rectangulo(punto2D(100,200),punto2D(300,400)),Rotacion(310))
   }
 
+  it should "rotacion sumada pero con grados que se pasan" in {
+    val string = "rotacion[300.0](\n\trotacion[70.0](\n\t\trectangulo[100 @ 200, 300 @ 400]\n\t)\n)"
+    simplificador(parserRotacion(string).get.elementoParseado) shouldBe FiguraTransformada(Rectangulo(punto2D(100,200),punto2D(300,400)),Rotacion(10))
+  }
+
   it should "escala multiplicada" in {
     val string = "escala[2.0, 3.0](\n      escala[3.0, 5.0](\n\t     circulo[0 @ 5, 10]\n      )\n)"
     simplificador(parserEscala(string).get.elementoParseado) shouldBe FiguraTransformada(Circulo(punto2D(0,5),10),Escala(6,15))
@@ -366,6 +382,12 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
         Rectangulo(punto2D(450, 100), punto2D(480, 260))
       ))
     ))
+  }
+
+  it should "test del padre  que se simplifica el hijo" in {
+    val string = "color[60.0, 150.0, 200.0](rotacion[0.0](color[1.0,1.0,1.0](triangulo[0 @ 100, 200 @ 300, 150 @ 500])))"
+    simplificador(parserColor(string).get.elementoParseado) shouldBe FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Color(1, 1, 1))
+
   }
 
  /* it should "punto 2 de simplificacion" in {
