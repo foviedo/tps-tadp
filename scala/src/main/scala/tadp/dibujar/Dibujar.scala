@@ -1,5 +1,2 @@
-object decirHola{
-  def saludar():String ={
-    "HOlA"
-  }
-}
+package tadp.dibujar
+
