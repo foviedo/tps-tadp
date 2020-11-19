@@ -1,7 +1,7 @@
 package tadp.dibujar
 
 import tadp.internal.TADPDrawingAdapter
-import tadp.parsers.{Circulo, Color, Escala, Figura, FiguraInvalidaException, FiguraTransformada, Grupo, Rectangulo, Rotacion, Traslacion, Triangulo}
+import tadp.parsers.{Circulo, Color, Escala, Figura, FiguraInvalidaException, FiguraTransformada, Grupo, Rectangulo, Rotacion, Traslacion, Triangulo, parserFigura}
 
 object dibujarFigura {
   def apply(unaFigura:Figura,adapter:TADPDrawingAdapter):TADPDrawingAdapter = unaFigura match {
@@ -65,5 +65,12 @@ object dibujarEscala{
 object dibujarTraslacion{
   def apply(traslacion:Traslacion,adapter: TADPDrawingAdapter) : TADPDrawingAdapter = {
     adapter.beginTranslate(traslacion.x,traslacion.y)
+  }
+}
+
+object dibujarImagen{
+  def apply(unString:String): Unit = {
+    val figuraParseada = parserFigura(unString).get.elementoParseado
+    TADPDrawingAdapter.forScreen({adapter => dibujarFigura(figuraParseada,adapter)})
   }
 }
