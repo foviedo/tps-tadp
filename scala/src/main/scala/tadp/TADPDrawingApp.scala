@@ -2,7 +2,9 @@ package tadp
 import tadp.parsers
 import scalafx.scene.paint.Color
 import tadp.internal.TADPDrawingAdapter
-import tadp.parsers.{Grupo, dibujarColor, dibujarFigura, parserEscala, parserFigura, parserGrupo, parserRectangulo, parserTraslacion, parserTriangulo}
+import tadp.parsers.{Grupo, parserEscala, parserFigura, parserGrupo, parserRectangulo, parserTraslacion, parserTriangulo}
+import tadp.dibujar.dibujarFigura
+
 
 object TADPDrawingApp extends App {
 
