@@ -68,9 +68,16 @@ object dibujarTraslacion{
   }
 }
 
-object dibujarImagen{
+object dibujarEnPantalla{
   def apply(unString:String): Unit = {
     val figuraParseada = parserFigura(unString).get.elementoParseado
     TADPDrawingAdapter.forScreen({adapter => dibujarFigura(figuraParseada,adapter)})
+  }
+}
+
+object dibujarImagen{
+  def apply(unString:String,ruta:String): Unit ={
+    val figuraParseada = parserFigura(unString).get.elementoParseado
+    TADPDrawingAdapter.forImage(ruta)({adapter => dibujarFigura(figuraParseada,adapter)})
   }
 }
