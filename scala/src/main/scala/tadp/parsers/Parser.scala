@@ -1,6 +1,7 @@
 package tadp.parsers
 import scala.util.{Failure, Success, Try}
 import tadp.internal.TADPDrawingAdapter
+import scalafx.scene.paint.Color
 import tadp.{TADPDrawingApp, internal}
 //import tadp.internal.{Operations, TADPDrawingAdapter, TADPDrawingScreen, TADPInteractiveDrawingScreen}
 //import tadp.parsers.dibujarCirculo.punto2D
@@ -420,6 +421,27 @@ object dibujarGrupo{
     grupo.elementos.foldLeft(adapter) {(unAdapter,unaFigura) => dibujarFigura(unaFigura,unAdapter)}
   }
 }
+
+object dibujarColor{
+  def apply(color:Color,adapter:TADPDrawingAdapter): TADPDrawingAdapter = {
+    adapter.beginColor(scalafx.scene.paint.Color.rgb(color.R,color.G,color.B))
+  }
+}
+
+object dibujarEscala{
+  def apply(rotacion:Rotacion,adapter:TADPDrawingAdapter): TADPDrawingAdapter = {
+    adapter.beginRotate(rotacion.grados)
+  }
+}
+
+object dibujarTraslacion{
+  def apply(traslacion:Traslacion,adapter: TADPDrawingAdapter) : TADPDrawingAdapter = {
+    adapter.beginTranslate(traslacion.x,traslacion.y)
+  }
+}
+
+
+
 
 trait Figura
 trait Transformacion

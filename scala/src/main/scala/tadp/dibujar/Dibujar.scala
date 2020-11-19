@@ -1,2 +1,5 @@
-//TODO mover todo acá! Así quedan divididos los parsers del caso práctico.
-
+object decirHola{
+  def saludar():String ={
+    "HOlA"
+  }
+}
