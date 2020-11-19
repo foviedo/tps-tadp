@@ -1,6 +1,7 @@
 package tadp.parsers
 import scala.util.{Failure, Success, Try}
 import tadp.internal.TADPDrawingAdapter
+import scalafx.scene.paint.Color
 import tadp.{TADPDrawingApp, internal}
 //import tadp.internal.{Operations, TADPDrawingAdapter, TADPDrawingScreen, TADPInteractiveDrawingScreen}
 //import tadp.parsers.dibujarCirculo.punto2D
@@ -175,7 +176,7 @@ case object double extends Parser[Double]{
       (menos+parteEntera + punto + parteFrac).toDouble})(unDouble)
   }
 
-}
+} //TODO el ultimo parser numero deberia ser opcional.
 
 
 
@@ -366,8 +367,9 @@ case object simplificador {
     simplificacionNueva
 
 
-    //simplificacion(simplificacion(unaFigura))
-  }
+    //simplificacion(simplificacion(unaFigura))<
+  } //TODO tratar de hacerlo sin while
+
 
   def simplificacion(unaFigura: Figura): Figura = {
     val funcion: Figura => Figura = {case FiguraTransformada(elemento,_) => elemento}
@@ -395,6 +397,10 @@ object dibujarFigura {
     case Triangulo(verticePrimero,verticeSegundo,verticeTercero) => dibujarTriangulo(Triangulo(verticePrimero,verticeSegundo,verticeTercero),adapter)
     case Circulo(centro,radio) => dibujarCirculo(Circulo(centro,radio),adapter)
     case Grupo(elementos) => dibujarGrupo(Grupo(elementos),adapter)
+    case FiguraTransformada(figura,Traslacion(x,y)) => dibujarFigura(figura,adapter.beginTranslate(x,y)).end()
+    case FiguraTransformada(figura,Rotacion(grados)) => dibujarFigura(figura,adapter.beginRotate(grados)).end()
+    case FiguraTransformada(figura,Escala(x,y)) => dibujarFigura(figura,adapter.beginScale(x,y)).end()
+    case FiguraTransformada(figura,Color(r,g,b)) => dibujarFigura(figura,adapter.beginColor(scalafx.scene.paint.Color.rgb(r,g,b))).end()
     case _ => throw new FiguraInvalidaException
   }
 }
@@ -430,6 +436,26 @@ object dibujarGrupo{
   }
 }
 
+//unAdapter y unaFigura son parametrizados
+
+object dibujarColor{
+  def apply(color:Color,adapter:TADPDrawingAdapter): TADPDrawingAdapter = {
+    adapter.beginColor(scalafx.scene.paint.Color.rgb(color.R,color.G,color.B))
+  }
+}
+
+object dibujarEscala{
+  def apply(rotacion:Rotacion,adapter:TADPDrawingAdapter): TADPDrawingAdapter = {
+    adapter.beginRotate(rotacion.grados)
+  }
+}
+
+object dibujarTraslacion{
+  def apply(traslacion:Traslacion,adapter: TADPDrawingAdapter) : TADPDrawingAdapter = {
+    adapter.beginTranslate(traslacion.x,traslacion.y)
+  }
+}
+
 trait Figura
 trait Transformacion
 case class Triangulo(verticePrimero: punto2D, verticeSegundo: punto2D, verticeTercero: punto2D) extends Figura
@@ -460,4 +486,8 @@ case object check{
   }
 }
 //TODO hacer que los parser puedanusar for comprehension (ya implementamos map), tenemos que convertir Parser en una mónada
+//TODO implementar flatMap
+
+//[[1,2,3],[2,3,5]].flatMap({a => a+1})
+//[1,2,3,2,3,5].map({a => a+1})
 
