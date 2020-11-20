@@ -1,10 +1,6 @@
 package tadp.parsers
 import scala.util.{Failure, Success, Try}
 import tadp.internal.TADPDrawingAdapter
-import scalafx.scene.paint.Color
-import tadp.{TADPDrawingApp, internal}
-//import tadp.internal.{Operations, TADPDrawingAdapter, TADPDrawingScreen, TADPInteractiveDrawingScreen}
-//import tadp.parsers.dibujarCirculo.punto2D
 
 abstract class Parser[T] {
   def apply(entrada:String): Try[ResultadoParser[T]]
@@ -279,14 +275,14 @@ case class parserPuntos(cantidad:Int) extends Parser[List[punto2D]] {
 case object parserRectangulo extends Parser[Figura] {
   def apply(unString:String): Try[ResultadoParser[Figura]] ={
     val funcion: List[punto2D] => Figura = {case List(supIzq,infDer) =>Rectangulo(supIzq,infDer) }
-      (string("rectangulo")  ~> parserPuntos(2)).map(funcion) (limpiadorDeString(unString))
+      (string("rectangulo")  ~> parserPuntos(2)).map(funcion) (unString)
   }
 }
 
 case object parserTriangulo extends Parser[Figura] {
     def apply(unString:String): Try[ResultadoParser[Figura]] ={
       val funcion: List[punto2D] => Figura = {case List(a,b,c) =>Triangulo(a,b,c) }
-      (string("triangulo") ~> parserPuntos(3)).map(funcion) (limpiadorDeString(unString))
+      (string("triangulo") ~> parserPuntos(3)).map(funcion) (unString)
     }
 }
 
@@ -294,7 +290,7 @@ case object parserTriangulo extends Parser[Figura] {
 case object parserCirculo extends Parser[Figura]{
   def apply (unString:String):Try[ResultadoParser[Figura]] ={
       val dobleListaACirculo: List[List[Int]] => Figura ={ case List(List(x,y),List(r)) => Circulo(punto2D(x,y),r)}
-      ((string("circulo[") ~> parserPuntos(2).parsearPuntos) <~ char(']')).map(dobleListaACirculo)(limpiadorDeString(unString))
+      ((string("circulo[") ~> parserPuntos(2).parsearPuntos) <~ char(']')).map(dobleListaACirculo)(unString)
   }
 }
 
@@ -304,14 +300,14 @@ case object parserCirculo extends Parser[Figura]{
 case object parserGrupo extends Parser[Figura] {
   def apply(unString:String):Try[ResultadoParser[Figura]] = {
     val funcion: List[Figura] => Figura = {laLista => Grupo(laLista)}
-    ((string("grupo(") ~> parserFigura.sepBy(char(','))) <~ char(')')).map(funcion) (limpiadorDeString(unString))
+    ((string("grupo(") ~> parserFigura.sepBy(char(','))) <~ char(')')).map(funcion) (unString)
 
   }
 }
 
 case object parserFigura extends Parser[Figura] {
   def apply(unString:String):Try[ResultadoParser[Figura]] = {
-    (parsearFiguras <|> parserGrupo <|> parsearTransformaciones) (unString)
+    (parsearFiguras <|> parserGrupo <|> parsearTransformaciones) (limpiadorDeString(unString))
   }
   private def parsearFiguras = {
     parserCirculo <|> parserRectangulo <|> parserTriangulo
@@ -323,7 +319,7 @@ case object parserFigura extends Parser[Figura] {
 
 case class parserTransformacion(cantidad:Int, nombre:String, funcion:((List[Double], Figura)) => Figura) extends Parser[Figura] {
   def apply(unString :String): Try[ResultadoParser[Figura]] = {
-    (((string(nombre) ~> char('[')) ~> double.sepByn(char(','),cantidad)  <~ string("](")) <> (parserFigura <~ char(')'))).map(funcion) (limpiadorDeString(unString))
+    (((string(nombre) ~> char('[')) ~> double.sepByn(char(','),cantidad)  <~ string("](")) <> (parserFigura <~ char(')'))).map(funcion) (unString)
   }
 }
 

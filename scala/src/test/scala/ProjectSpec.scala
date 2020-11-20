@@ -3,7 +3,6 @@ package tadp.parsers
 import org.scalatest.TryValues.convertTryToSuccessOrFailure
 import org.scalatest.flatspec._
 import org.scalatest.matchers._
-import tadp.internal.TADPDrawingAdapter
 
 import scala.util.Success
 
@@ -182,39 +181,39 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
   }
 
   it should "deberia generar un rectangulo" in {
-    parserRectangulo("rectangulo[0 @ 100, 200 @ 300]") shouldBe Success(ResultadoParser(Rectangulo(punto2D(0,100),punto2D(200,300)),""))
+    parserFigura("rectangulo[0 @ 100, 200 @ 300]") shouldBe Success(ResultadoParser(Rectangulo(punto2D(0,100),punto2D(200,300)),""))
 
   }
 
   it should "deberia estallar por pasar un rectangulo con mas de dos coordenada" in {
-    parserRectangulo("rectangulo[0 @ 100, 200 @ 300, 300 @ 200]").failure.exception shouldBe a [ConcatException]
+    parserFigura("rectangulo[0 @ 100, 200 @ 300, 300 @ 200]").failure.exception shouldBe a [ConcatException]
 
   }
 
   it should "deberia estallar por pasar un rectangulo con menos de dos coordenada" in {
-    parserRectangulo("rectangulo[0 @ 100]").failure.exception shouldBe a [ConcatException]
+    parserFigura("rectangulo[0 @ 100]").failure.exception shouldBe a [ConcatException]
 
   }
 
   it should "deberia generar un triangulo" in {
-    parserTriangulo("triangulo[0 @ 100, 200 @ 300, 150 @ 500]") shouldBe Success(ResultadoParser(Triangulo(punto2D(0,100), punto2D(200,300), punto2D(150,500)),""))
+    parserFigura("triangulo[0 @ 100, 200 @ 300, 150 @ 500]") shouldBe Success(ResultadoParser(Triangulo(punto2D(0,100), punto2D(200,300), punto2D(150,500)),""))
 
 
   }
 
   it should "deberia generar un circulo" in {
-    parserCirculo("circulo[100 @ 100, 50]") shouldBe Success(ResultadoParser(Circulo(punto2D(100,100),50),""))
+    parserFigura("circulo[100 @ 100, 50]") shouldBe Success(ResultadoParser(Circulo(punto2D(100,100),50),""))
   }
 
   it should "Parser figura deberia parsear cualquier figura" in {
-    parserRectangulo("rectangulo[0 @ 100, 200 @ 300]") shouldBe Success(ResultadoParser(Rectangulo(punto2D(0,100),punto2D(200,300)),""))
-    parserTriangulo("triangulo[0 @ 100, 200 @ 300, 150 @ 500]") shouldBe Success(ResultadoParser(Triangulo(punto2D(0,100), punto2D(200,300), punto2D(150,500)),""))
-    parserCirculo("circulo[100 @ 100, 50]") shouldBe Success(ResultadoParser(Circulo(punto2D(100,100),50),""))
+    parserFigura("rectangulo[0 @ 100, 200 @ 300]") shouldBe Success(ResultadoParser(Rectangulo(punto2D(0,100),punto2D(200,300)),""))
+    parserFigura("triangulo[0 @ 100, 200 @ 300, 150 @ 500]") shouldBe Success(ResultadoParser(Triangulo(punto2D(0,100), punto2D(200,300), punto2D(150,500)),""))
+    parserFigura("circulo[100 @ 100, 50]") shouldBe Success(ResultadoParser(Circulo(punto2D(100,100),50),""))
   }
 
   it should "Parser grupo deberia parsear un grupo" in {
     val unString = "grupo(\n      triangulo[200 @ 50, 101 @ 335, 299 @ 335],circulo[200 @ 350, 100])"
-    parserGrupo (unString) shouldBe Success(ResultadoParser(Grupo(List(
+    parserFigura (unString) shouldBe Success(ResultadoParser(Grupo(List(
       Triangulo(punto2D(200,50), punto2D(101,335), punto2D(299,335)),
       Circulo(punto2D(200,350),100)))
       ,""))
@@ -223,7 +222,7 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
   it should "Parser grupo deberia parsear grupos anidados" in {
     val unString = " grupo(grupo( triangulo[250 @ 150, 150 @ 300, 350 @ 300],  triangulo[150 @ 300, 50 @ 450, 250 @ 450], triangulo[350 @ 300, 250 @ 450, 450 @ 450]  ),grupo(      rectangulo[460 @ 90, 470 @ 100], rectangulo[430 @ 210, 500 @ 220], rectangulo[430 @ 210, 440 @ 230], rectangulo[490 @ 210, 500 @ 230], rectangulo[450 @ 100, 480 @ 260] )) "
 
-    parserGrupo (unString) shouldBe Success(ResultadoParser(Grupo(List(
+    parserFigura (unString) shouldBe Success(ResultadoParser(Grupo(List(
       Grupo(List(
         Triangulo(punto2D(250, 150), punto2D(150, 300), punto2D(350, 300)),
         Triangulo(punto2D(150, 300), punto2D(50, 450), punto2D(250, 450)),
@@ -244,7 +243,7 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
   it should "Parser grupo deberia parsear grupos anidados1" in {
     val unString = " grupo(grupo( triangulo[250 @ 150, 150 @ 300, 350 @ 300] ),grupo(      rectangulo[460 @ 90, 470 @ 100] )) "
 
-    parserGrupo (unString) shouldBe Success(ResultadoParser(Grupo(List(
+    parserFigura (unString) shouldBe Success(ResultadoParser(Grupo(List(
       Grupo(List(
         Triangulo(punto2D(250, 150), punto2D(150, 300), punto2D(350, 300))
       )),
@@ -258,12 +257,12 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
 
   it should "parser de color" in {
     val string = "color[60.0, 150.0, 200.0](\n    grupo(\n   \t triangulo[200 @ 50, 101 @ 335, 299 @ 335],\n   \t circulo[200 @ 350, 100]\n    )\n)"
-    parserColor(string) shouldBe Success(ResultadoParser(FiguraTransformada(Grupo(List(Triangulo(punto2D(200,50),punto2D(101,335),punto2D(299,335)),Circulo(punto2D(200,350),100))),Color(60,150,200)),""))
+    parserFigura(string) shouldBe Success(ResultadoParser(FiguraTransformada(Grupo(List(Triangulo(punto2D(200,50),punto2D(101,335),punto2D(299,335)),Circulo(punto2D(200,350),100))),Color(60,150,200)),""))
   }
 
   it should "parser de color invalido" in {
     val string = "color[256.0, 150.0, 200.0](\n    grupo(\n   \t triangulo[200 @ 50, 101 @ 335, 299 @ 335],\n   \t circulo[200 @ 350, 100]\n    )\n)"
-    parserColor(string).failure.exception shouldBe a [ColorInvalidoException]
+    parserFigura(string).failure.exception shouldBe a [ConcatException]
   }
 
 
@@ -271,38 +270,38 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     val string = """escala[2.5, 1.0](
                    |	rectangulo[0 @ 100, 200 @ 300]
                    |)""".stripMargin
-    parserEscala(string) shouldBe Success(ResultadoParser(FiguraTransformada(Rectangulo(punto2D(0, 100), punto2D(200, 300)), Escala(2.5, 1.0)), ""))
+      parserFigura(string) shouldBe Success(ResultadoParser(FiguraTransformada(Rectangulo(punto2D(0, 100), punto2D(200, 300)), Escala(2.5, 1.0)), ""))
   }
 
   it should "parser de rotacion" in {
     val string = """rotacion[45.0](
                    |	rectangulo[300 @ 0, 500 @ 200]
                    |)""".stripMargin
-    parserRotacion(string) shouldBe Success(ResultadoParser(FiguraTransformada(Rectangulo(punto2D(300, 0), punto2D(500, 200)), Rotacion(45)), ""))
+    parserFigura(string) shouldBe Success(ResultadoParser(FiguraTransformada(Rectangulo(punto2D(300, 0), punto2D(500, 200)), Rotacion(45)), ""))
   }
 
   it should "parser de rotacion que se pasa" in {
     val string = """rotacion[405.0](
                    |	rectangulo[300 @ 0, 500 @ 200]
                    |)""".stripMargin
-    parserRotacion(string) shouldBe Success(ResultadoParser(FiguraTransformada(Rectangulo(punto2D(300, 0), punto2D(500, 200)), Rotacion(45)), ""))
+    parserFigura(string) shouldBe Success(ResultadoParser(FiguraTransformada(Rectangulo(punto2D(300, 0), punto2D(500, 200)), Rotacion(45)), ""))
   }
 
   it should "parser de traslación" in {
     val string = """traslacion[200.0, 50.0](
                    |	triangulo[0 @ 100, 200 @ 300, 150 @ 500]
                    |)""".stripMargin
-    parserTraslacion(string) shouldBe Success(ResultadoParser(FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Traslacion(200, 50)), ""))
+    parserFigura(string) shouldBe Success(ResultadoParser(FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Traslacion(200, 50)), ""))
   }
 
   it should "dasda" in{
-    val circuloParseado = parserCirculo("circulo[200 @ 350, 100]")
+    val circuloParseado = parserFigura("circulo[200 @ 350, 100]")
     val circulo = circuloParseado.get.elementoParseado
 
-    val trianguloParseado = parserTriangulo("triangulo[150 @ 300, 50 @ 450, 250 @ 450]")
+    val trianguloParseado = parserFigura("triangulo[150 @ 300, 50 @ 450, 250 @ 450]")
     val triangulo = trianguloParseado.get.elementoParseado
 
-    val rectanguloParseado = parserRectangulo("rectangulo[0 @ 100, 200 @ 300]")
+    val rectanguloParseado = parserFigura("rectangulo[0 @ 100, 200 @ 300]")
     val rectangulo = rectanguloParseado.get.elementoParseado
 
  //este test es solo para instanciar objetos y ver cómo tipan.
@@ -316,7 +315,7 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
 
   it should "figura simple de doble color" in {
     val string = "color[60.0, 150.0, 200.0](color[1.0,1.0,1.0](triangulo[0 @ 100, 200 @ 300, 150 @ 500]))"
-    simplificador(parserColor(string).get.elementoParseado) shouldBe FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Color(1, 1, 1))
+    simplificador(parserFigura(string).get.elementoParseado) shouldBe FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Color(1, 1, 1))
   }
 
   it should "simplificacion 2" in {
@@ -327,48 +326,48 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     val malo = "grupo(\n\tcolor[200.0, 200.0, 200.0](rectangulo[100 @ 100, 200 @ 200]),\n\tcolor[200.0, 200.0, 200.0](circulo[100 @ 300, 150])\n)"
     val bueno = "color[200.0, 200.0, 200.0](\n   grupo(\n\trectangulo[100 @ 100, 200 @ 200],\n\tcirculo[100 @ 300, 150]\n   )\n)"
 
-    simplificador(parserGrupo(malo).get.elementoParseado) shouldBe simplificador(parserColor(bueno).get.elementoParseado)
+    simplificador(parserFigura(malo).get.elementoParseado) shouldBe simplificador(parserFigura(bueno).get.elementoParseado)
   }
 
   it should "rotacion sumada" in {
     val string = "rotacion[300.0](\n\trotacion[10.0](\n\t\trectangulo[100 @ 200, 300 @ 400]\n\t)\n)"
-    simplificador(parserRotacion(string).get.elementoParseado) shouldBe FiguraTransformada(Rectangulo(punto2D(100,200),punto2D(300,400)),Rotacion(310))
+    simplificador(parserFigura(string).get.elementoParseado) shouldBe FiguraTransformada(Rectangulo(punto2D(100,200),punto2D(300,400)),Rotacion(310))
   }
 
   it should "rotacion sumada pero con grados que se pasan" in {
     val string = "rotacion[300.0](\n\trotacion[70.0](\n\t\trectangulo[100 @ 200, 300 @ 400]\n\t)\n)"
-    simplificador(parserRotacion(string).get.elementoParseado) shouldBe FiguraTransformada(Rectangulo(punto2D(100,200),punto2D(300,400)),Rotacion(10))
+    simplificador(parserFigura(string).get.elementoParseado) shouldBe FiguraTransformada(Rectangulo(punto2D(100,200),punto2D(300,400)),Rotacion(10))
   }
 
   it should "escala multiplicada" in {
     val string = "escala[2.0, 3.0](\n      escala[3.0, 5.0](\n\t     circulo[0 @ 5, 10]\n      )\n)"
-    simplificador(parserEscala(string).get.elementoParseado) shouldBe FiguraTransformada(Circulo(punto2D(0,5),10),Escala(6,15))
+    simplificador(parserFigura(string).get.elementoParseado) shouldBe FiguraTransformada(Circulo(punto2D(0,5),10),Escala(6,15))
   }
 
   it should "traslacion sumada" in {
     val string = "traslacion[100.0, 5.0](\n\ttraslacion[20.0, 10.0](\n\t\tcirculo[0 @ 5, 10]\n)\n)"
-    simplificador(parserTraslacion(string).get.elementoParseado) shouldBe FiguraTransformada(Circulo(punto2D(0,5),10),Traslacion(120,15))
+    simplificador(parserFigura(string).get.elementoParseado) shouldBe FiguraTransformada(Circulo(punto2D(0,5),10),Traslacion(120,15))
   }
 
   it should "rotacion 0 grados" in {
     val string = "rotacion[0.0](\n\t\trectangulo[100 @ 200, 300 @ 400]\n\t)\n)"
-    simplificador(parserRotacion(string)  .get.elementoParseado) shouldBe Rectangulo(punto2D(100,200),punto2D(300,400))
+    simplificador(parserFigura(string)  .get.elementoParseado) shouldBe Rectangulo(punto2D(100,200),punto2D(300,400))
   }
 
   it should "escala de 1" in {
     val string = "escala[1.0, 1.0]( circulo[0 @ 5, 10]\n      )"
-    simplificador(parserEscala(string).get.elementoParseado) shouldBe Circulo(punto2D(0,5),10)
+    simplificador(parserFigura(string).get.elementoParseado) shouldBe Circulo(punto2D(0,5),10)
 
   }
 
   it should "traslacion de 0" in {
     val string = "traslacion[0.0, 0.0](\n\t\tcirculo[0 @ 5, 10]\n)"
-    simplificador(parserTraslacion(string).get.elementoParseado) shouldBe Circulo(punto2D(0,5),10)
+    simplificador(parserFigura(string).get.elementoParseado) shouldBe Circulo(punto2D(0,5),10)
   }
 
   it should "nada raro simplificando" in {
     val unString = " grupo(grupo( triangulo[250 @ 150, 150 @ 300, 350 @ 300],  triangulo[150 @ 300, 50 @ 450, 250 @ 450], triangulo[350 @ 300, 250 @ 450, 450 @ 450]  ),grupo(      rectangulo[460 @ 90, 470 @ 100], rectangulo[430 @ 210, 500 @ 220], rectangulo[430 @ 210, 440 @ 230], rectangulo[490 @ 210, 500 @ 230], rectangulo[450 @ 100, 480 @ 260] )) "
-    simplificador(parserGrupo (unString).get.elementoParseado) shouldBe Grupo(List(
+    simplificador(parserFigura(unString).get.elementoParseado) shouldBe Grupo(List(
       Grupo(List(
         Triangulo(punto2D(250, 150), punto2D(150, 300), punto2D(350, 300)),
         Triangulo(punto2D(150, 300), punto2D(50, 450), punto2D(250, 450)),
@@ -386,7 +385,7 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
 
   it should "test del padre  que se simplifica el hijo" in {
     val string = "color[60.0, 150.0, 200.0](rotacion[0.0](color[1.0,1.0,1.0](triangulo[0 @ 100, 200 @ 300, 150 @ 500])))"
-    simplificador(parserColor(string).get.elementoParseado) shouldBe FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Color(1, 1, 1))
+    simplificador(parserFigura(string).get.elementoParseado) shouldBe FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Color(1, 1, 1))
 
   }
 
