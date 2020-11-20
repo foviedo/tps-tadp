@@ -48,26 +48,6 @@ object dibujarGrupo{
   }
 }
 
-//unAdapter y unaFigura son parametrizados
-
-object dibujarColor{
-  def apply(color:Color,adapter:TADPDrawingAdapter): TADPDrawingAdapter = {
-    adapter.beginColor(scalafx.scene.paint.Color.rgb(color.R,color.G,color.B))
-  }
-}
-
-object dibujarEscala{
-  def apply(rotacion:Rotacion,adapter:TADPDrawingAdapter): TADPDrawingAdapter = {
-    adapter.beginRotate(rotacion.grados)
-  }
-}
-
-object dibujarTraslacion{
-  def apply(traslacion:Traslacion,adapter: TADPDrawingAdapter) : TADPDrawingAdapter = {
-    adapter.beginTranslate(traslacion.x,traslacion.y)
-  }
-}
-
 object dibujarEnPantalla{
   def apply(unString:String): Unit = {
     val figuraParseada = parserFigura(unString).get.elementoParseado

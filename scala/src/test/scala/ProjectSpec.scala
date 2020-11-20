@@ -88,6 +88,11 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     double("bro momento").failure.exception shouldBe a[ConcatException]
   }
 
+  //it should "deberia funcionar con enteros" in {
+    //double("35") shouldBe Success(ResultadoParser(35,""))
+  //}
+
+
   it should "deberia andar test <|> para primer parser" in {
     (char('a') <|> char('b'))("arbol") shouldBe Success(ResultadoParser('a', "rbol"))
   }
@@ -295,18 +300,6 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
     parserTraslacion(string) shouldBe Success(ResultadoParser(FiguraTransformada(Triangulo(punto2D(0, 100), punto2D(200, 300), punto2D(150, 500)), Traslacion(200, 50)), ""))
   }
 
-  it should "dasda" in{
-    val circuloParseado = parserCirculo("circulo[200 @ 350, 100]")
-    val circulo = circuloParseado.get.elementoParseado
-
-    val trianguloParseado = parserTriangulo("triangulo[150 @ 300, 50 @ 450, 250 @ 450]")
-    val triangulo = trianguloParseado.get.elementoParseado
-
-    val rectanguloParseado = parserRectangulo("rectangulo[0 @ 100, 200 @ 300]")
-    val rectangulo = rectanguloParseado.get.elementoParseado
-
- //este test es solo para instanciar objetos y ver cómo tipan.
-  }
 //  ███████╗██╗███╗   ███╗██████╗ ██╗     ██╗███████╗██╗ ██████╗ █████╗ ██████╗  ██████╗ ██████╗
 //  ██╔════╝██║████╗ ████║██╔══██╗██║     ██║██╔════╝██║██╔════╝██╔══██╗██╔══██╗██╔═══██╗██╔══██╗
 //  ███████╗██║██╔████╔██║██████╔╝██║     ██║█████╗  ██║██║     ███████║██║  ██║██║   ██║██████╔╝
