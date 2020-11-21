@@ -9,3 +9,4 @@ class MapException extends Exception
 class SatisfiesException extends Exception
 class FiguraInvalidaException extends Exception
 class ColorInvalidoException extends Exception
+class RepetirException extends Exception

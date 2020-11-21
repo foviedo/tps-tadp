@@ -383,17 +383,21 @@ class ProjectSpec extends AnyFlatSpec with should.Matchers {
 
   }
 
- /* it should "punto 2 de simplificacion" in {
-    val unString = "\n\ngrupo(\n\tcolor[200, 200, 200](rectangulo[100 @ 100, 200 @ 200]),\n\tcolor[200, 200, 200](circulo[100 @ 300, 150])\n)"
-  }*/
+  // ------------------------------------------ TP INDIVIDUAL -----------------------------------
 
-//  it should "deberia retornar el string hola el <~" in {
-//    (string("hola") <~ string("mundo"))("holamundo") shouldBe Success(ResultadoParser("hola", ""))
-//  }
-//
-//  it should "<~ deberia retornar ConcatException" in {
-//    (string("hola") <~ string("mundo"))("testosterona").failure.exception shouldBe a[ConcatException]
-//  }
+  it should "repetir sin sobrante test" in {
+    string("hola").repetir(3)("holaholahola") shouldBe Success(ResultadoParser(List("hola","hola","hola"),""))
+  }
+
+
+  it should "repetir con sobrante test" in {
+    string("hola").repetir(3)("holaholaholaholahola") shouldBe Success(ResultadoParser(List("hola","hola","hola"),"holahola"))
+  }
+
+  it should "mandar de menos en repetir" in {
+    string("hola").repetir(3)("holahola").failure.exception shouldBe a [RepetirException]
+  }
+
 
 }
 

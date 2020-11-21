@@ -29,6 +29,10 @@ abstract class Parser[T] {
     (new sepBy).combinar(this,otroParser)
   }
 
+  def repetir (cantidad:Int):Parser[List[T]] = {
+    new repetir().combinar(this,cantidad)
+  }
+
 
 
   def * ():Parser[List[T]] = {
@@ -36,21 +40,28 @@ abstract class Parser[T] {
     new Parser[List[T]] {
       override def apply(entrada: String): Try[ResultadoParser[List[T]]] = {
         Try {
-          armameLaLista(yo,entrada)
+          yo.parsearmeNVeces(entrada)
         }
-
-      }
-      def armameLaLista[K](parser:Parser[T],entrada:String): ResultadoParser[List[T]] ={
-        val resultado = parser.apply(entrada) match {
-          case Success(ResultadoParser(parseado,sobranteAParsear)) =>
-            val ResultadoParser(parseadoNuevo,sobranteNuevo) = armameLaLista(parser, sobranteAParsear)
-            (parseado:: parseadoNuevo,sobranteNuevo)
-          case Failure(_) => (List(),entrada)
-        }
-        ResultadoParser(resultado._1,resultado._2)
       }
     }
   }
+
+  //NOTA: la idea era que sea la misma función, y que *() le pase Int.MaxValue y que en repetir checkee que haya parseado el minimo de veces y si no que estalle
+  //Estoy hace 40 min viendo esta funcion y tratando de encontrar la abstraccion auxilio
+  //bueno, lo abstraje acá y si mando un número negativo no me voy a chocar nunca contra el límite
+  //Nota para el lector de la primer nota: en ese momento eran dos funciones, una con cada case de Failure que están ahí abajo
+  def parsearmeNVeces[K](entrada:String, cantidad:Int = -1): ResultadoParser[List[T]] ={
+    val resultado = this.apply(entrada) match {
+      case _ if cantidad ==0 => (List(),entrada)
+      case Success(ResultadoParser(parseado,sobranteAParsear)) =>
+        val ResultadoParser(parseadoNuevo,sobranteNuevo) = parsearmeNVeces(sobranteAParsear,cantidad -1)
+        (parseado:: parseadoNuevo,sobranteNuevo)
+      case Failure(_) if cantidad>0 => throw new RepetirException
+      case Failure(_) => (List(),entrada)
+    }
+    ResultadoParser(resultado._1,resultado._2)
+  }
+
 
   def +(): Parser[List[T]] = {
     val yo= this
@@ -249,6 +260,18 @@ class sepByn[T,S] {
     new Parser[List[T]] {
       override def apply(entrada: String): Try[ResultadoParser[List[T]]] = {
         (new sepBy).combinar(parserDeContenido,parserSeparador).satisfies(x => x.length == cantidadDeVeces)(entrada)
+      }
+    }
+  }
+}
+
+class repetir[T] {
+  def combinar (parserInicial:Parser[T],cantidad:Int):Parser[List[T]] = {
+    new Parser[List[T]] {
+      override def apply(entrada: String): Try[ResultadoParser[List[T]]] = {
+        Try {
+          parserInicial.parsearmeNVeces(entrada,cantidad)
+        }
       }
     }
   }
