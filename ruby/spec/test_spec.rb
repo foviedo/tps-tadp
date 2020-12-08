@@ -24,9 +24,9 @@ describe 'Prueba' do
     end
 
     expect(Atleta.new('Fran', 50, 20).metodo(21)).to eq 21
-    expect{Atleta.new('Maxi', 120, 20)}.to raise_error(RuntimeError)
-    expect{Atleta.new('Facu', 50, 17)}.to raise_error(RuntimeError)
-    expect{Atleta.new('Guido', 15, 20)}.to raise_error(RuntimeError)
+    expect{Atleta.new('Maxi', 120, 20)}.to raise_error(InvariantError)
+    expect{Atleta.new('Facu', 50, 17)}.to raise_error(InvariantError)
+    expect{Atleta.new('Guido', 15, 20)}.to raise_error(InvariantError)
 
   end
 
@@ -111,7 +111,47 @@ describe 'the last dance' do
       return metodo_banana
     end
 
+    typed({parametro: Integer}, Integer)
+    def metodoParaProbarElTyped(parametro)
+      parametro + 5
+    end
+
+    typed({},String)
+    def metodoQueRompeElTyped(parametro)
+      return parametro + 5
+    end
+
+    typed({parametro: String},Integer)
+    def metodoQueRompeElTypedPorParametros(parametro)
+      return parametro + 5
+    end
+
+    typed({p1: Integer, p2: String},Integer)
+    def cambioElOrden(p2,p1)
+      unString = p2 + "asd"
+      p1 + 5
+    end
+
+    duck([:metodo_banana, :cambioElOrden], [:to_s])
+    def paraElDuck(unaUnaClase,unString)
+      unaUnaClase.metodo_banana
+      unString
+    end
+
+
+    duck([:cambioElOrden,:metodo_banana,:metodo_que_definitivamente_no_existe],[:to_s])
+    def paraElDuckQueNoAnda(unaUnaClase,unString)
+      unaUnaClase.metodo_banana
+      unString + "equis de"
+    end
+
+    duck([:to_s],[:xd])
+    def paraElDuckUnArg(string)
+      string + "asd"
+    end
+
   end
+
 
   it 'si se manda una instancia a ver param con un parametro mayor a uno todo sale bien' do
     expect(UnaClase.new.ver_param(10)).to eq 10
@@ -120,7 +160,7 @@ describe 'the last dance' do
     expect(UnaClase.new.correr).to eq 662
   end
   it 'si se manda una instancia a tomar cerveza con una cantidad de gramos mayor a 420, el invariant deberia romper' do
-    expect{UnaClase.new.tomar_cerveza(500)}.to raise_error(RuntimeError)
+    expect{UnaClase.new.tomar_cerveza(500)}.to raise_error(InvariantError)
   end
   it 'si se manda una instancia a tomar cerveza con una cantidad de gramos de 0, todo sale bien porque sigue cumpliendose el invariant' do
     expect(UnaClase.new.tomar_cerveza(0)).to eq(420)
@@ -139,13 +179,52 @@ describe 'the last dance' do
     expect{
       luken = UnaClase.new
       luken.fumarse_un_cigarro
-      luken.metodo_de_prueba_prioridad(450)}.to raise_error(RuntimeError)
+      luken.metodo_de_prueba_prioridad(450)}.to raise_error(PreError)
   end
+
   it 'no debería pisar los métodos que se llaman igual que los parametros' do
     clase = UnaClase.new
     clase.un_metodo_que_pidio_juan("manzana")
     expect(clase.metodo_banana).to eq "banana"
   end
 
+  it 'typed que anda' do
+    clase = UnaClase.new
+    clase.metodoParaProbarElTyped(4)
+  end
+
+  it 'typed que tiene mal el retorno' do
+    clase = UnaClase.new
+    expect{clase.metodoQueRompeElTyped(4)}.to raise_error(PostError)
+  end
+
+  it 'typed que rompe por el tipo del parametro' do
+    clase = UnaClase.new
+    expect{clase.metodoQueRompeElTypedPorParametros(4)}.to raise_error(PreError)
+  end
+
+  it 'cambiando el orden de los parametros el typed anda' do
+    clase = UnaClase.new
+    clase.cambioElOrden("banana",5)
+  end
+
+
+  it 'duck type que funciona' do
+    #  p [[1,2],[2,3]].each_with_index.map{|listaMensajes,indice| listaMensajes.all?{|mensaje| true}}
+
+    clase = UnaClase.new
+    clase.paraElDuck(clase,"bro")
+  end
+
+
+  it 'duck type que NO funciona' do
+    clase = UnaClase.new
+    expect{clase.paraElDuckQueNoAnda(clase,"bro")}.to raise_error(PreError)
+  end
+
+  it 'duck type que no funciona pero esta vez por la cantidad de argumentos' do
+    clase = UnaClase.new
+    expect{clase.paraElDuckUnArg("banana")}.to raise_error(PreError)
+  end
 end
 

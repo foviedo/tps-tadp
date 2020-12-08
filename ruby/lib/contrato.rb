@@ -14,12 +14,11 @@ module Contrato
     def method_added(method_name)
       # https://stackoverflow.com/questions/53487250/stack-level-too-deep-with-method-added-ruby
       return if @_adding_a_method
-
+      
       metodo_viejo = instance_method(method_name)
       nombre_argumentos = metodo_viejo.parameters.map { |arg| arg[1].to_s }
 
       @_adding_a_method = true
-      proc_invariants = invariants
       proc_before = before
       proc_after = after
 
@@ -30,14 +29,14 @@ module Contrato
             argumentos[index]
           end
         end
-        raise "Error con un pre en #{self}:#{method_name}}" unless mi_objeto_copia.instance_exec(&proc_before)
+        raise PreError, "Error con un pre en #{self}:#{method_name}}" unless mi_objeto_copia.instance_exec(*argumentos,&proc_before)
 
         resultado = metodo_viejo.bind(self).call(*argumentos)
 
         #prco_invariants.each ...
         # Checkeo cada invariant
         self.class.invariants.each do |invariant|
-          raise "Error con un invariant en #{self}:#{method_name}}" unless instance_eval(&invariant)
+          raise InvariantError, "Error con un invariant en #{self}:#{method_name}}" unless instance_eval(&invariant)
         end
         mi_objeto_copia = self.clone
         nombre_argumentos.each_with_index do |item, index|
@@ -45,7 +44,7 @@ module Contrato
             argumentos[index]
           end
         end
-        raise "Error con un post en #{self}:#{method_name}}" unless mi_objeto_copia.instance_exec(resultado, &proc_after)
+        raise PostError, "Error con un post en #{self}:#{method_name}}" unless mi_objeto_copia.instance_exec(resultado, &proc_after)
 
         resultado
       end
@@ -75,6 +74,16 @@ module Contrato
       @after = block
     end
 
+    def typed(mapa_tipos,tipo_retorno)
+      pre {(mapa_tipos.all?{|elemento| instance_eval(elemento[0].to_s).is_a? elemento[1]})}
+      post {|retorno| (retorno.is_a? tipo_retorno)}
+    end
+
+    def duck (*listas_de_funciones)
+      pre { |*argumentos| listas_de_funciones.each_with_index.map{|listaMensajes,indice| listaMensajes.all?{|mensaje| argumentos[indice].respond_to?(mensaje)}}.all? and argumentos.length == listas_de_funciones.length }
+    end
+
+
     # Con esto inicializo el vector de invariants
     def invariants
       @invariants ||= [proc { true }]
@@ -88,4 +97,11 @@ module Contrato
       @after ||= proc { true }
     end
   end
+end
+
+class PreError < RuntimeError
+end
+class PostError < RuntimeError
+end
+class InvariantError < RuntimeError
 end
